@@ -3,11 +3,574 @@ info:
   title: ImageKit API
   version: 1.0.0
   description: |-
-    ImageKit REST API. Please see https://imagekit.io/docs/api-reference/overview for more details.
+    # Introduction
+
+    ImageKit.io offers REST API so that you can programmatically integrate ImageKit.io into your application.
+
+    The API documentation will start with a general overview of the design and technology that has been implemented, followed by reference information about specific endpoints.
+    
+    ## Request and response
+    
+    Except for the upload file API, all our APIs accept JSON-encoded request bodies and return JSON-encoded responses. Requests should be made using only HTTPS protocol so that traffic is encrypted.
+    
+    ## Run in Postman
+    We've created a [Postman collection](https://app.getpostman.com/run-collection/e8afe4815e95f8b14660) to make testing and working with our API simpler.
+    
+    ## Error codes
+    
+    ImageKit.io API uses standard HTTP error codes.
+
+    | Error code                | Description                                                                                                                                                                                                                                                                                                                                                                                                        |
+    |---------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+    | **2xx**<br>OK            | Everything worked as expected.                                                                                                                                                                                                                                                                                                                                                                                     |
+    | **400**<br>Bad request   | The request was unacceptable, often due to missing or invalid parameter(s). In this case, a JSON-encoded error response is returned with the `message` property. `message` contains the details about the error and possible solution.                                                                                                                                                                             |
+    | **401**<br>Unauthorized | No valid API key was provided.                                                                                                                                                                                                                                                                                                                                                                                     |
+    | **403**<br>Forbidden     | This can be for the following reasons, which will be indicated in the `message` field in the response: <ul><li>ImageKit could not authenticate your account with the keys provided.</li><li>An expired key (public or private) was used with the request.</li><li>The account is disabled.</li><li>If you are using the upload API, the total storage limit (or upload limit) is exceeded.</li></ul> |
+    | **429**<br>Too Many Requests | Too many requests hit the API too quickly. We recommend you throttle the request rate as per the value of `X-RateLimit-Limit` and `X-RateLimit-Reset` response headers and stay within [rate limits](#rate-limits).                                                                                                                                                                                           |
+    | **500, 502, 503, 504**<br>Server error | Something went wrong with ImageKit.io API. Please create a support ticket by emailing us at [support@imagekit.io](mailto:support@imagekit.io).                                                                                                                                                                                                                                              |
+    
+    ## Request ID (x-ik-requestId)
+
+    All API responses contain a `x-ik-requestId` header. The value of this header is a unique identifier associated with the API request. If you face any issues with any API, then provide this header value in your support ticket to help us troubleshoot the issue quickly.
+    
+    # Rate Limits
+
+    Except for the upload API, all our APIs are rate-limited to protect our infrastructure from excessive request rates and to keep ImageKit.io fast and stable for everyone.
+    
+    Rate limiting is done across the account. When you exceed the rate limits for an endpoint, you will receive a `429` (Too many requests) response code.
+    
+    If you receive a response status code of 429 (Too Many Requests), please sleep/pause for the number of milliseconds specified by the value of `X-RateLimit-Reset` response header before making additional requests to that endpoint.
+    
+    ## Interval window
+    
+    Rate limits are specified for a specific interval. So, if an endpoint allows 100 requests per second (1000 milliseconds), and you exceed this rate, your application will receive a 429 response code. As explained below, every endpoint can have different limits, which are exposed via rate-limiting headers.
+    
+    A single endpoint can have multiple limits, for example, a 100 request per second limit along with 1000 limits for a 15-minute duration.
+    
+    ## Response headers to understand rate limits
+    
+    In response to every API request, you will also receive the following response headers. Use these headers to stay within rate limits or pause/sleep your workflow in case you exceed the limits.
+    
+    | Response header                              | Description                                                                                                                                                     |
+    | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | <p><code>X-RateLimit-Limit</code><br></p>    | <p>The maximum number of requests that can be made to this endpoint in the interval specified <br>by <code>X-RateLimit-Interval</code> response header.<br></p> |
+    | `X-RateLimit-Reset`                          | The amount of time in milliseconds before you can make another request to this endpoint. Pause/sleep your workflow for this duration.                          |
+    | <p><code>X-RateLimit-Interval</code><br></p> | The duration of the interval in milliseconds for which this rate limit was exceeded.                                                                                |
+    
+    ## Request higher rate limits
+    
+    If your workflow demands a higher rate limit, please reach out to us at [support@imagekit.io](mailto:support@imagekit.io).
+    
+    # API keys
+    
+    ImageKit authenticates your API requests using your account's API keys. If you don't include your key when making an API request or use an incorrect or outdated one, we return an error.
+    
+    ## Types of keys
+
+    - Standard keys: A standard API key has read and write access to all the APIs listed above.
+    - Restricted key: A restricted API key allows only the minimum [level of access](#resource-list) that you specify across all the APIs listed above. The three access levels are: `None`, `Read only`, and `Read and write`. For example, if you set `Read only` permission for media access for your restricted key, you cannot use it to perform any upload, update, or delete operation. You can only perform operations like list and search files, get file details, get file metadata, etc.
+    
+    ## Obtaining your API keys
+
+    [View](https://imagekit.io/dashboard/developer/api-keys) your API keys in the ImageKit.io dashboard in the **API keys** section under the **Developer options** tab. Every account has one pair of standard public and private keys by default.
+    
+    ![The API keys section in Developer options](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/obtain-api-key_AzXoqM0WE.webp?updatedAt=1708938427076)
+    
+    ### **Public key**
+
+    This is used to identify your account in certain client-side file upload implementations. It is not meant to be secret, and you can publish this in client-side Javascript code or an Android or iPhone app.
+    
+    ### **Private key**
+    
+    This should be kept confidential and only stored on your servers. A private key is used to authenticate your account when you make an API request.
+    
+    ## Keeping your keys safe
+    
+    It is strongly recommended to keep your private key safe and confidential. To help keep your API keys secure, follow these best practices:
+    
+    1. Do not embed API keys directly in your code. API keys that are embedded in code can be accidentally exposed to the public. For example, you may forget to remove the keys from the code that you share. Instead of embedding your API keys in your applications, store them in environment variables or in files outside of your application's source tree.
+    2. Do not store API keys in files inside your application's source tree. If you store API keys in files, keep the files outside your application's source tree to help ensure your keys do not end up in your source code control system. This is particularly important if you use a public source code management system such as GitHub.
+    
+    ## Rolling keys
+    
+    If an API key is compromised, you should roll that pair immediately and start using the newly generated keys. The newly generated pair has the same resource access permissions as the old one.
+    
+    You can choose when to expire the existing key:
+    
+    - Immediately
+    - In 1 hour
+    - In 24 hours
+    - In 3 days
+    - In 7 days
+    
+    The expiry period you choose blocks and expires the existing key after the time period you specify. Regardless of the expiry period, you can use the new key immediately.
+    
+    ![Roll API keys](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/roll-api-key_uO_qlGz6W.webp?updatedAt=1708938427339)
+    
+    ## Deleting keys
+    
+    You can delete any existing API key in your account. However, your account will always have at least one pair of active standard keys.
+    
+    ## Revealing keys
+    
+    By default, the private key is masked for security reasons. You can click on the reveal icon next to the private key and enter your password to authorize and reveal the private keys.
+    
+    ## Restricted API keys
+    
+    You can:
+    
+    - Create a new restricted API key and specify its resource access permissions.
+    - Update resource access permissions on any existing restricted API keys.
+    
+    ![Create restricted API keys](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/create-restricted-api-key_MOyq1TUOLz.webp?updatedAt=1708938427413)
+    
+    The three access levels across any resource are: `None`, `Read only`, and `Read and write`.
+    
+    ### Resource list
+    
+    - Media access: Permissions for operations on Upload, Media management, File metadata, and Custom metadata management APIs.
+    
+    | Permission level   | APIs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+    | ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | **None**           | No APIs                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+    | **Read**           | [List and search files](../media-api/list-and-search-files.md) <br/> [Get file details](../media-api/get-file-details.md) <br/> [Get file version details](../media-api/get-file-version-details.md) <br/> [Get file versions](../media-api/get-file-versions.md) <br/> [Bulk job status](../media-api/copy-move-folder-status.md) <br/> [Purge cache status](../media-api/purge-cache-status.md) <br/> [Get image metadata for uploaded media files](../metadata-api/get-image-metadata-for-uploaded-media-files.md) <br/> [Get image metadata from remote URL](../metadata-api/get-image-metadata-from-remote-url.md) <br/> [Get custom metadata field](../custom-metadata-fields-api/get-custom-metadata-field.md)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+    | **Read and write** | All APIs under read permission <br/> [Server side file upload](../upload-file-api/server-side-file-upload.md) <br/> [Client side file upload](../upload-file-api/client-side-file-upload.md) <br> [Secure client side file upload](../upload-file-api/secure-client-side-file-upload.md) <br/> <br/> [Update file details](../media-api/update-file-details.md) <br/> [Add tags (bulk)](../media-api/add-tags-bulk.md) <br/>[Remove tags (bulk)](../media-api/remove-tags-bulk.md) <br/>[Remove AITags (bulk)](../media-api/remove-aitags-bulk.md)<br/> [Delete file](../media-api/delete-file.md) <br/> [Delete file version](../media-api/delete-file-version.md) <br/>[Delete files (bulk)](../media-api/delete-files-bulk.md)<br/>[Copy file](../media-api/copy-file.md)<br/>[Move file](../media-api/move-file.md)<br/>[Rename file](../media-api/rename-file.md)<br/>[Restore file version](../media-api/restore-file-version.md)<br/>[Create folder](../media-api/create-folder.md)<br/>[Delete folder](../media-api/delete-folder.md)<br/>[Copy folder](../media-api/copy-folder.md)<br/>[Move folder](../media-api/move-folder.md)<br/>[Purge cache](../media-api/purge-cache.md)<br/> [Create custom metadata field](../custom-metadata-fields-api/create-custom-metadata-field.md) <br/>[Update custom metadata field](../custom-metadata-fields-api/update-custom-metadata-field.md) <br/>[Delete custom metadata field](../custom-metadata-fields-api/delete-custom-metadata-field.md) |
+
+    # Webhooks
+    
+    Imagekit uses webhooks to notify your application when an event happens in your account. Webhooks are particularly useful for asynchronous events such as video encoding and extension processing during upload.
+    
+    ## Steps to receive webhooks
+    
+    1. Configure the webhook in your ImageKit dashboard.
+    2. Create a webhook endpoint as an HTTP endpoint (URL) on your server.
+    3. Handle requests from ImageKit by parsing each event object and returning `2xx` response status codes.
+    
+    ## How to configure a Webhook?
+    
+    Go to [developer options](https://imagekit.io/dashboard/developer) in the ImageKit dashboard. Under Webhooks, you will see the list of webhook endpoints configured.
+    
+    Click on the "Add new" button to create a new webhook endpoint.
+    
+    ![Create new webhook endpoint](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/create-new-webhook-endpoint_yWUV8YlGH.png?updatedAt=1686574767184)
+    
+    Enter a valid HTTP(S) endpoint and click on "Create".
+    
+    ![Create webhook form](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/create-webhook-form_RReNm7PTo.png?updatedAt=1686574767769)
+    
+    You should see the webhook endpoint in the list now.
+    
+    ![Webhook endpoint lists](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/webhook-endpoint-lists_vH5I4Faas.png?updatedAt=1686574771585)
+    
+    To update an existing endpoint, click on `...` and change the status.
+    
+    ![Update webhook endpoint](https://ikmedia.imagekit.io/docs_images/api-reference/api-introduction/webhooks/update-webhook-endpoint_zNy-RSmmp.png?updatedAt=1686574771887)
+    
+    ## Listen to Webhook
+    
+    Use a tool like [Ngrok](https://ngrok.com/) to make your webhook endpoint publicly accessible for testing webhook implementation.
+    
+    All webhook bodies are JSON encoded. The schema of the body may differ based on the event type, but the following fields are common.
+    
+    | Field     | DataType | Description                              |
+    |-----------|----------|------------------------------------------|
+    | type      | `string` | Type of event.                           |
+    | id        | `string` | Unique identifier of the event.          |
+    | createdAt | `string` | Timestamp of the event in ISO8601 format.|
+    | data      | `JSON`   | Actual event payload in JSON format.  |
+    
+    ## Verify webhook signature
+    
+    Webhook endpoints are publicly accessible, therefore it is essential to filter out malicious requests. We recommend using the webhook signature to verify the authenticity of the webhook request and payload.
+    
+    To achieve this, Imagekit sends the signature in the `x-ik-signature` request header in every webhook request. In your backend, you can generate the same signature using the [webhook secret](https://imagekit.io/dashboard/developer/webhooks) and compare it with the header value.
+    
+    Keep webhook secret secure in your backend stored in an environment variable.
+    
+    ### Verify signature with ImageKit SDK
+    
+    You can use imagekit SDK to verify & parse webhook request payload.
+    
+    Example code using [ImageKit Node.js SDK](https://github.com/imagekit-developer/imagekit-nodejs):
+    
+    ```javascript
+    const express = require('express');
+    const Imagekit = require('imagekit');
+    
+    // Webhook configs
+    const WEBHOOK_SECRET = 'whsec_...'; // Copy from Imagekit dashboard
+    const WEBHOOK_EXPIRY_DURATION = 300 * 1000; // 300 seconds for example
+    
+    const imagekit = new Imagekit({
+      publicKey: 'public_...',
+      urlEndpoint: 'https://ik.imagekit.io/imagekit_id',
+      privateKey: 'private_...',
+    })
+    
+    const app = express();
+    
+    app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+        const signature = req.headers["x-ik-signature"];
+        const requestBody = req.body;
+        let webhookResult;
+        try {
+            webhookResult = imagekit.verifyWebhookEvent(requestBody, signature, WEBHOOK_SECRET);
+        } catch (e) {
+            // `verifyWebhookEvent` method will throw an error if signature is invalid
+            console.log(e);
+            res.status(400).send(`Webhook Error`);
+        }
+    
+        const { timestamp, event } = webhookResult;
+    
+        // Check if webhook has expired
+        if (timestamp + WEBHOOK_EXPIRY_DURATION < Date.now()) {
+            res.status(400).send(`Webhook Error`);
+        }
+    
+        // Handle webhook
+        switch (event.type) {
+            case 'video.transformation.accepted':
+                // It is triggered when a new video transformation request is accepted for processing. You can use this for debugging purposes.
+                break;
+            case 'video.transformation.ready':
+                // It is triggered when a video encoding is finished, and the transformed resource is ready to be served. You should listen to this webhook and update any flag in your database or CMS against that particular asset so your application can start showing it to users.
+                break;
+            case 'video.transformation.error':
+                // It is triggered if an error occurs during encoding. Listen to this webhook to log the reason. You should check your origin and URL-endpoint settings if the reason is related to download failure. If the reason seems like an error on the ImageKit side, then raise a support ticket at support@imagekit.io.
+                break;
+            default:
+                // ... handle other event types
+                console.log(`Unhandled event type ${event.type}`);
+        }
+    
+        // Return a response to acknowledge receipt of the event
+        res.send();
+    })
+    
+    app.listen(3000, () => {
+        console.log(`Example app listening on port 3000`)
+    })
+    ```
+    
+    ### Verify signature manually
+    
+    Imagekit webhook request contains a `x-ik-signature` header like this:
+    
+    ```txt
+    x-ik-signature: t=1655795539264,v1=b6bc2aa82491c32f1cbef0eb52b7ffaa51467ea65a03b5d4ccdcfb9e0941c946
+    ```
+    
+    - The Timestamp of the signature is a Unix timestamp in milliseconds, prefixed with `t=`.
+    - The HMAC signature is prefixed with `v1=`.
+    
+    Once you have retrieved the webhook signature from the request header & raw request body, you can verify the authenticity of the webhook request in the following steps:
+    
+    **Step 1:** Extract each item from the `x-ik-signature`, by splitting on `,` separator.
+    
+    ```javascript
+    items = 't=1655795539264,v1=b6bc2aa82491c32f1cbef0eb52b7ffaa51467ea65a03b5d4ccdcfb9e0941c946'.split(',')
+    // [ 't=1655795539264', 'v1=b6bc2aa82491c32f1cbef0eb52b7ffaa51467ea65a03b5d4ccdcfb9e0941c946' ]
+    ```
+    
+    **Step 2:** Extract timestamp.
+    
+    ```javascript
+    timestamp = 't=1655795539264'.split('=')[1]
+    // '1655795539264'
+    ```
+    
+    **Step 3:** Extract signature encoded as a hex string.
+    
+    ```javascript
+    signature = 'v1=b6bc2aa82491c32f1cbef0eb52b7ffaa51467ea65a03b5d4ccdcfb9e0941c946'.split('=')[1]
+    // 'b6bc2aa82491c32f1cbef0eb52b7ffaa51467ea65a03b5d4ccdcfb9e0941c946'
+    ```
+    
+    **Step 4:** Compute the HMAC hash using the webhook secret, signature timestamp, and raw request body.
+    
+    - The HAMC key is the webhook secret.
+    - HMAC payload is formed by concatenating the Timestamp (as numeric string), character `.`, and raw request body (encoded as UTF8 string).
+    - Use the SHA256 algorithm to compute the HMAC hash.
+    - HMAC hash is encoded as a hex string.
+    
+    Here is an example in Node.js:
+    
+    ```javascript
+    const createHmac = require("crypto").createHmac;
+    var signature = createHmac('sha256', webhookSecret)
+      .update(timestamp + '.' + rawRequestBody)
+      .digest('hex');
+    ```
+    
+    **Step 5:** Compare the signature with the signature received in the `x-ik-signature` header. The webhook request is valid if they are the same.
+    
+    ## Preventing replay attacks
+    
+    When an attacker intercepts a webhook request, they can replay it multiple times with a valid signature.
+    
+    To mitigate this, Imagekit webhook signature contains a timestamp. The Timestamp is generated before the webhook request is sent to your server.
+    
+    The `verifyWebhookEvent` method in ImageKit SDK returns the Timestamp & parsed event object.
+    
+    If the Timestamp is within the tolerance limit, the request can be considered valid, or you can reject it.
+    
+    Optionally, a stronger approach is to use a nonce to prevent replay attacks. You can use Event ID as a nonce, it is guaranteed to be unique across all events. You can find the event ID in `id` field of the event object.
+    
+    ## Sample Codes
+    
+    Example code using [ExpressJS](https://expressjs.com/):
+    
+    ```javascript
+    const express = require('express');
+    const Imagekit = require('imagekit');
+    
+    // Webhook configs
+    const WEBHOOK_ENDPOINT = '/webhook';
+    const WEBHOOK_SECRET = 'whsec_...'; // Copy from Imagekit dashboard
+    const WEBHOOK_EXPIRY_DURATION = 60 * 1000; // 60 seconds
+    
+    const imagekit = new Imagekit({
+      publicKey: 'public_...',
+      urlEndpoint: 'https://ik.imagekit.io/imagekit_id',
+      privateKey: 'private_...',
+    })
+    
+    const app = express();
+    
+    app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+      const signature = req.headers['x-ik-signature'];
+      const rawBody = req.body;
+    
+      // Verify webhook signature
+      let webhookResult;
+      try {
+        webhookResult = imagekit.verifyWebhookEvent(rawBody, signature, WEBHOOK_SECRET);
+      } catch (e) {
+        // Failed to verify webhook
+        return res.status(401).send(`Webhook error: ${e.message}`);
+      }
+      const { timestamp, event } = webhookResult;
+    
+      // Check if webhook has expired
+      if (timestamp + WEBHOOK_EXPIRY_DURATION < Date.now()) {
+        // Stall webhook
+        return res.status(401).send('Webhook signature expired');
+      }
+    
+      // Handle webhook
+      switch (event.type) {
+        case 'video.transformation.accepted':
+          // It is triggered when a new video transformation request is accepted for processing. You can use this for debugging purposes.
+          break;
+        case 'video.transformation.ready':
+          // It is triggered when a video encoding is finished, and the transformed resource is ready to be served. You should listen to this webhook and update any flag in your database or CMS against that particular asset so your application can start showing it to users.
+          break;
+        case 'video.transformation.error':
+          // It is triggered if an error occurs during encoding. Listen to this webhook to log the reason. You should check your origin and URL-endpoint settings if the reason is related to download failure. If the reason seems like an error on the ImageKit side, then raise a support ticket at support@imagekit.io.
+          break;
+        // ... handle other event types
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+    
+      // Acknowledge webhook is received and processed successfully
+      res.status(200).end();
+    });
+    
+    app.listen(3000, () => {
+      console.log("Server listening on port 3000");
+      console.log(
+        `Webhook endpoint: 'http://localhost:${PORT}${WEBHOOK_ENDPOINT}'`,
+        'Do replace 'localhost' with public endpoint'
+      );
+    });
+    ```
+    
+    Example code using Fastify:
+    
+    ```javascript
+    const fastify = require('fastify');
+    const fastifyRawBody = require('fastify-raw-body');
+    const Imagekit = require('imagekit');
+    
+    // Webhook configs
+    const WEBHOOK_ENDPOINT = '/webhook';
+    const WEBHOOK_SECRET = 'whsec_...'; // Copy from Imagekit dashboard
+    const WEBHOOK_EXPIRY_DURATION = 60 * 1000; // 60 seconds
+    
+    const imagekit = new Imagekit({
+      publicKey: 'public_...',
+      urlEndpoint: 'https://ik.imagekit.io/imagekit_id',
+      privateKey: 'private_...',
+    })
+    
+    const server = fastify();
+    
+    const startServer = async (port) => {
+      // Use 'fastify-raw-body' package to retrive raw request body as utf8 string
+      await server.register(fastifyRawBody, { routes: [WEBHOOK_ENDPOINT] });
+    
+      // Add webhook endpoint route
+      server.route({
+        method: 'POST',
+        url: WEBHOOK_ENDPOINT,
+        handler: (req, res) => {
+          // Handle webhook
+          const signature = req.raw.headers['x-ik-signature'];
+          const rawBody = req.body;
+    
+          // Verify webhook signature
+          let webhookResult;
+          try {
+            webhookResult = imagekit.verifyWebhookEvent(rawBody, signature, WEBHOOK_SECRET);
+          } catch (e) {
+            // Webhook verification failed
+            return res.status(401).send(`Webhook error: ${e.message}`);
+          }
+          const { timestamp, event } = webhookResult;
+    
+          // Check if webhook has expired
+          if (timestamp + WEBHOOK_EXPIRY_DURATION < Date.now()) {
+            // Stall webhook
+            return res.status(401).send('Webhook signature expired');
+          }
+          
+          // Handle webhook
+          switch (event.type) {
+            case 'video.transformation.accepted':
+              console.log('Video transformation request accepted');
+              break;
+            case 'video.transformation.ready':
+              console.log('Video transformation ready');
+              break;
+            case 'video.transformation.error':
+              console.log('Video transformation error');
+              break;
+          }
+    
+          // Acknowledge webhook is received and processed successfully
+          res.status(200).send();
+        },
+      });
+    
+      await server.listen({ port });
+    };
+    
+    startServer(3000).then(() => {
+      console.log("Server listening on port 3000");
+      console.log(
+        `Webhook endpoint: 'http://localhost:${PORT}${WEBHOOK_ENDPOINT}'`,
+        'Do replace 'localhost' with public endpoint'
+      );
+    });
+    ```
+    
+    Example code using Node HTTP:
+    
+    ```javascript
+    const http = require('http');
+    const Imagekit = require('imagekit');
+    
+    // Webhook configs
+    const WEBHOOK_ENDPOINT = '/webhook';
+    const WEBHOOK_SECRET = 'whsec_...'; // Copy from Imagekit dashboard
+    const WEBHOOK_EXPIRY_DURATION = 60 * 1000; // 60 seconds
+    
+    const imagekit = new Imagekit({
+      publicKey: 'public_...',
+      urlEndpoint: 'https://ik.imagekit.io/imagekit_id',
+      privateKey: 'private_...',
+    })
+    
+    const webhookRoute = (req, res) => {
+      const signature = req.headers['x-ik-signature'];
+      const reqChunks = [];
+      req.setEncoding('utf8');
+      req.on('data', (chunk) => {
+        reqChunks.push(chunk);
+      });
+      req.on('end', () => {
+        const rawBody = reqChunks.join('');
+    
+        // Verify webhook signature
+        let webhookResult;
+        try {
+          webhookResult = imagekit.verifyWebhookEvent(rawBody, signature, WEBHOOK_SECRET);
+        } catch (e) {
+          // Webhook signature verification failed
+          res.writeHead(401, `Webhook error: ${e.message}`);
+          res.end();
+          return;
+        }
+        const { timestamp, event } = webhookResult;
+    
+        // Check if webhook has expired
+        if (timestamp + WEBHOOK_EXPIRY_DURATION < Date.now()) {
+          // Stall webhook
+          res.writeHead(401, 'Webhook signature expired');
+          res.end();
+          return;
+        }
+    
+        // Handle webhook
+        switch (event.type) {
+          case 'video.transformation.accepted':
+            console.log('Video transformation request accepted');
+            break;
+          case 'video.transformation.ready':
+            console.log('Video transformation ready');
+            break;
+          case 'video.transformation.error':
+            console.log('Video transformation error');
+            break;
+        }
+    
+        // Acknowledge webhook is received and processed successfully
+        res.writeHead(200, 'OK');
+        res.end();
+      });
+    };
+    
+    const server = http.createServer((req, res) => {
+      switch (req.url) {
+        case WEBHOOK_ENDPOINT:
+          webhookRoute(req, res);
+          break;
+        default: {
+          res.writeHead(404);
+          res.end();
+        }
+      }
+    });
+    
+    server.listen(3000, () => {
+      console.log("Server listening on port 3000");
+      console.log(
+        `Webhook endpoint: 'http://localhost:${PORT}${WEBHOOK_ENDPOINT}'`,
+        'Do replace 'localhost' with public endpoint'
+      );
+    });
+    
+    ```
+    
+    ## List of events
+    
+    Below is the list of events for which ImageKit calls your configured webhook.
+    
+    - [video.transformation.accepted](../../features/video-transformation/video-webhook-events.md#video.transformation.accepted)
+    - [video.transformation.ready](../../features/video-transformation/video-webhook-events.md#video.transformation.ready)
+    - [video.transformation.error](../../features/video-transformation/video-webhook-events.md#video.transformation.error)
+    - [upload.pre-transform.success](../../features/pre-post-transformation/pre-post-tr-webhook-events.md#upload.pre-transform.success)
+    - [upload.pre-transform.error](../../features/pre-post-transformation/pre-post-tr-webhook-events.md#upload.pre-transform.error)
+    - [upload.post-transform.success](../../features/pre-post-transformation/pre-post-tr-webhook-events.md#upload.post-transform.success)
+    - [upload.post-transform.error](../../features/pre-post-transformation/pre-post-tr-webhook-events.md#upload.post-transform.error)
+
   contact:
     email: developers@imagekit.io
     name: ImageKit Team
     url: https://imagekit.io
+  termsOfService: 'https://imagekit.io/terms/'
 servers:
   - url: https://api.imagekit.io
 paths:
