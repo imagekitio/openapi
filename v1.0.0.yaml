@@ -113,6 +113,12 @@ paths:
                 minValue: 1000
                 maxValue: 3000
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "201":
           description: Custom metadata field created successfully.
           content:
@@ -141,7 +147,7 @@ paths:
                   help:
                     type: string
                     description: Human readable help instructions.
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
       tags:
         - Digital Asset Management (DAM)
         - Custom metadata fields
@@ -161,7 +167,13 @@ paths:
           schema:
             type: boolean
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: Array of custom metadata field objects.
           content:
             application/json:
@@ -183,32 +195,7 @@ paths:
                     type: Number
                     minValue: 1000
                     maxValue: 3000
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
   /v1/files/{fileId}/details:
     get:
       tags:
@@ -226,7 +213,13 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: File details object.
           content:
             application/json:
@@ -266,34 +259,9 @@ paths:
                   color: red
                 createdAt: "2019-08-24T06:14:41.313Z"
                 updatedAt: "2019-08-24T06:14:41.313Z"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -304,7 +272,7 @@ paths:
                     example: The requested file does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
     patch:
       tags:
         - Digital Asset Management (DAM)
@@ -394,6 +362,12 @@ paths:
               customCoordinates: "10,10,100,100"
               customMetadata: { "brand": "Nike", "color": "red" }
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Updated file details object.
           content:
@@ -452,34 +426,8 @@ paths:
                 extensionStatus:
                   google-auto-tagging: "success"
                   remove-bg: "pending"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -490,7 +438,22 @@ paths:
                     example: The requested file does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Invalid custom metadata.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+                  errors:
+                    type: object
   /v1/customMetadataFields/{id}:
     patch:
       tags:
@@ -584,7 +547,13 @@ paths:
                 minValue: 1000
                 maxValue: 3000
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: Custom metadata field updated successfully.
           content:
             application/json:
@@ -615,6 +584,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: Custom metadata field deleted successfully.
           content:
@@ -717,6 +692,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: List of assets.
           content:
@@ -797,32 +778,7 @@ paths:
                   createdAt: "2023-04-21T03:03:00.869Z"
                   updatedAt: "2023-04-21T03:10:22.374Z"
                   folderPath: "/sale"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
   /v1/files/{fileId}:
     delete:
       tags:
@@ -843,40 +799,16 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: File deleted successfully.
-          content:
-            application/json:
-              schema:
-                type: object
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -887,7 +819,7 @@ paths:
                     example: The requested file does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/batch/deleteByFileIds:
     post:
       tags:
@@ -918,7 +850,13 @@ paths:
                 - 598821f949c0a938d57563bd
                 - 598821f949c0a938d57563be
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: Files deleted successfully.
           content:
             application/json:
@@ -958,34 +896,9 @@ paths:
                             Error message for the file that was not deleted.
                     description: |
                       An array of fileIds that were not deleted and the error.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -996,7 +909,7 @@ paths:
                     example: The requested file(s) does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
                   missingFileIds:
                     type: array
                     items:
@@ -1039,40 +952,20 @@ paths:
                     Option to copy all versions of a file. By default, only the current version of the file is copied. When set to true, all versions of the file will be copied. Default value - `false`.
                   example: false
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: File copied successfully.
           content:
             application/json:
               schema:
                 type: object
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -1086,7 +979,27 @@ paths:
                     example: No file found with filePath `/file1.jpg`.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your request is missing parameters / contains invalid parameters.
+                  reason:
+                    type: string
+                    examples:
+                      - MISSING_PARAMETER
+                      - SAME_SOURCE_AND_DESTINATION
+                      - VERSION_LIMIT_EXCEEDED
+                      - INVALID_FOLDER_PATH
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/move:
     post:
       tags:
@@ -1118,40 +1031,20 @@ paths:
                     Full path to the folder you want to move the above file into.
                   example: /folder/to/move/into/
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: File moved successfully.
           content:
             application/json:
               schema:
                 type: object
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -1165,7 +1058,27 @@ paths:
                     example: No file found with filePath `/file1.jpg`.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your request is missing parameters / contains invalid parameters.
+                  reason:
+                    type: string
+                    examples:
+                      - MISSING_PARAMETER
+                      - SAME_SOURCE_AND_DESTINATION
+                      - VERSION_LIMIT_EXCEEDED
+                      - INVALID_FOLDER_PATH
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/rename:
     put:
       tags:
@@ -1213,7 +1126,13 @@ paths:
                     Default value - `false`
                   example: true
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: On success, you will receive `purgeRequestId` in the response body, which can be used to get the purge request status. This is only sent if the `purgeCache` is set to `true` in the request. Otherwise, the response is an empty JSON.
           content:
             application/json:
@@ -1239,33 +1158,8 @@ paths:
                     example: File renamed successfully but we could not purge the CDN cache for old URL because of rate limits on purge API.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        
         "404":
           description: If no file is found at the specified filePath in the media library, then a 404 response is returned.
           content:
@@ -1281,7 +1175,7 @@ paths:
                     example: No file found in media library at filePath /path/to/file.jpg
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
         "409":
           description: If a file with newFileName already exist in the same location.
           content:
@@ -1297,7 +1191,7 @@ paths:
                     example: File with name newFileName already exists at the same location.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}/versions:
     get:
       tags:
@@ -1316,6 +1210,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Array of file version objects.
           content:
@@ -1389,35 +1289,9 @@ paths:
                         brand: Nike
                         color: red
                       createdAt: "2019-08-24T06:15:41.313Z"
-                      updatedAt: "2019-08-24T06:15:41.313Z"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                      updatedAt: "2019-08-24T06:15:41.313Z" 
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -1428,7 +1302,7 @@ paths:
                     example: The requested file does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}/versions/{versionId}:
     get:
       tags:
@@ -1453,6 +1327,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: File version details object.
           content:
@@ -1491,35 +1371,9 @@ paths:
                   brand: Nike
                   color: red
                 createdAt: "2019-08-24T06:15:41.313Z"
-                updatedAt: "2019-08-24T06:15:41.313Z"
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                updatedAt: "2019-08-24T06:15:41.313Z"        
         "404":
-          description: File version not found
+          description: File version not found.
           content:
             application/json:
               schema:
@@ -1530,7 +1384,7 @@ paths:
                     example: The requested file version does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
     delete:
       tags:
         - Digital Asset Management (DAM)
@@ -1557,6 +1411,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: File version deleted successfully.
           content:
@@ -1575,35 +1435,9 @@ paths:
                     example: You cannot delete current version of a file.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io
+                    example: For support kindly contact us at support@imagekit.io.
         "404":
-          description: File version found
+          description: File version found.
           content:
             application/json:
               schema:
@@ -1614,7 +1448,7 @@ paths:
                     example: The requested asset does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}/versions/{versionId}/restore:
     put:
       tags:
@@ -1640,7 +1474,13 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "201":
           description: Restored file details object.
           content:
             application/json:
@@ -1681,32 +1521,7 @@ paths:
                   createdAt: "2019-08-24T06:14:41.313Z"
                   updatedAt: "2019-08-24T06:14:41.313Z"
 
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
         "404":
           description: File or file version does not exist
           content:
@@ -1719,7 +1534,7 @@ paths:
                     example: The requested file version does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/addTags:
     post:
       tags:
@@ -1759,6 +1574,12 @@ paths:
                 - round-neck
                 - sale2019
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Tags added successfully.
           content:
@@ -1798,35 +1619,9 @@ paths:
                           description: |
                             Error message for the file that was not updated.
                     description: |
-                      An array of fileIds that were not updated and the error.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                      An array of fileIds that were not updated and the error.      
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -1837,7 +1632,7 @@ paths:
                     example: The requested file(s) does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
                   missingFileIds:
                     type: array
                     items:
@@ -1883,6 +1678,12 @@ paths:
                 - round-neck
                 - sale2019
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Tags removed successfully.
           content:
@@ -1923,34 +1724,9 @@ paths:
                             Error message for the file that was not updated.
                     description: |
                       An array of fileIds that were not updated and the error.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+        
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -1961,7 +1737,7 @@ paths:
                     example: The requested file(s) does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
                   missingFileIds:
                     type: array
                     items:
@@ -2007,6 +1783,12 @@ paths:
                 - round-neck
                 - sale2019
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: AITags removed successfully.
           content:
@@ -2046,35 +1828,9 @@ paths:
                           description: |
                             Error message for the file that was not updated.
                     description: |
-                      An array of fileIds that were not updated and the error.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                      An array of fileIds that were not updated and the error. 
         "404":
-          description: File not found
+          description: File not found.
           content:
             application/json:
               schema:
@@ -2085,7 +1841,7 @@ paths:
                     example: The requested file(s) does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/folder:
     post:
       tags:
@@ -2120,38 +1876,36 @@ paths:
               folderName: summer
               parentFolderPath: /product/images/
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "201":
           description: Folder created successfully.
           content:
             application/json:
               schema:
                 type: object
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad Request.
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  reason:
+                    type: string
+                    example: INVALID_FOLDER_PATH
                   message:
                     type: string
-                    example: Your request does not contain private API key.
+                    description: Human readable error message.
+                    example: "'.' & '..' can not be used as folder-name"
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    description: Human readable help instructions.
+                    example: For support kindly contact us at support@imagekit.io.
     delete:
       tags:
         - Digital Asset Management (DAM)
@@ -2175,38 +1929,18 @@ paths:
             example:
               folderPath: /folder/to/delete/
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "204":
           description: Folder deleted successfully.
           content:
             application/json:
               schema:
                 type: object
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
           description: Folder not found
           content:
@@ -2222,7 +1956,25 @@ paths:
                     example: No folder found with folderPath `/folder/to/delete/`.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+                    example: TOO_MANY_OBJECTS
+                  message:
+                    type: string
+                    description: Human readable error message.
+                    example: Total nested assets (files, folders and file versions) are more than allowed limit of 100000 items.
+                  help:
+                    type: string
+                    description: Human readable help instructions.
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/bulkJobs/copyFolder:
     post:
       tags:
@@ -2257,6 +2009,12 @@ paths:
                     Option to copy all versions of files that are nested inside the selected folder. By default, only the current version of each file will be copied. When set to true, all versions of each file will be copied. Default value - `false`.
                   example: true
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Job submitted successfully. A `jobId` will be returned.
           content:
@@ -2268,32 +2026,6 @@ paths:
                     type: string
                     description: |
                       Unique identifier of the bulk job. This can be used to check the status of the bulk job.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
           description: Folder not found
           content:
@@ -2309,7 +2041,29 @@ paths:
                     example: No files & folder found at sourceFolderPath `/folder/to/copy`.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: sourceFolderPath and destinationPath is same
+                  reason:
+                    type: string
+                    examples:
+                      - MISSING_PARAMETER
+                      - INVALID_PARAMETER
+                      - TOO_MANY_OBJECTS
+                      - SOURCE_IS_ROOT
+                      - SAME_SOURCE_AND_DESTINATION
+                      - INVALID_FOLDER_PATH
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/bulkJobs/moveFolder:
     post:
       tags:
@@ -2339,6 +2093,12 @@ paths:
                     Full path to the destination folder where you want to move the source folder into.
                   example: /path/of/destination/folder
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: Job submitted successfully. A `jobId` will be returned.
           content:
@@ -2350,32 +2110,6 @@ paths:
                     type: string
                     description: |
                       Unique identifier of the bulk job. This can be used to check the status of the bulk job.
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
           description: Folder not found
           content:
@@ -2391,7 +2125,30 @@ paths:
                     example: No files & folder found at sourceFolderPath `/folder/to/move`.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit .io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: This operation is not allowed because parent folder cannot be moved into child folder.
+                  reason:
+                    type: string
+                    examples:
+                      - MISSING_PARAMETER
+                      - INVALID_PARAMETER
+                      - TOO_MANY_OBJECTS
+                      - SOURCE_IS_ROOT
+                      - SAME_SOURCE_AND_DESTINATION
+                      - INVALID_FOLDER_PATH
+                      - INVALID_DESTINATION_PATH
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/bulkJobs/{jobId}:
     get:
       tags:
@@ -2410,6 +2167,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: |
             On success, you will receive the status of the bulk job in the response body.
@@ -2434,32 +2197,6 @@ paths:
                   jobId: 5d5b1a9b4c8c4c0001f3e4a2
                   type: COPY_FOLDER
                   status: Completed
-        "401":
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your request does not contain private API key.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
         "404":
           description: Job not found
           content:
@@ -2472,7 +2209,7 @@ paths:
                     example: The requested job does not exist.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/purge:
     post:
       tags:
@@ -2495,6 +2232,12 @@ paths:
                     The full URL of the file to be purged.
                   example: https://ik.imagekit.io/your_imagekit_id/default-image.jpg
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "201":
           description: Purge request submitted successfully. A `requestId` will be returned.
           content:
@@ -2506,8 +2249,8 @@ paths:
                     type: string
                     description: |
                       Unique identifier of the purge request. This can be used to check the status of the purge request.
-        "401":
-          description: Unauthorized
+        "400":
+          description: Bad request.
           content:
             application/json:
               schema:
@@ -2515,23 +2258,10 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Your request does not contain private API key.
+                    example: The URL is not valid for cache purging.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/purge/{requestId}:
     get:
       tags:
@@ -2549,6 +2279,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: |
             On success, you will receive the status of the purge request in the response body.
@@ -2560,10 +2296,13 @@ paths:
                   status:
                     type: string
                     example: Completed
+                    enum:
+                      - Pending
+                      - Completed
                     description: |
-                      Status of the purge request. Possible values - `Completed`, `Pending`.
-        "401":
-          description: Unauthorized
+                      Status of the purge request.
+        "400":
+          description: Bad request.
           content:
             application/json:
               schema:
@@ -2571,23 +2310,10 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Your request does not contain private API key.
+                    example: No request found for this requestId.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
-        "403":
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Your account cannot be authenticated.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}/metadata:
     get:
       tags:
@@ -2607,6 +2333,12 @@ paths:
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: File metadata object.
           content:
@@ -2748,8 +2480,8 @@ paths:
                         InteropIndex: "R98"
                         InteropVersion: "0100"
                       makernote: {}
-        "401":
-          description: Unauthorized
+        "404":
+          description: File not found.
           content:
             application/json:
               schema:
@@ -2757,10 +2489,23 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Your request does not contain private API key.
+                    example: The requested file does not exist or is inaccessible at this time.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The requested file is corrupt or invalid.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/metadata:
     get:
       tags:
@@ -2771,13 +2516,19 @@ paths:
         Get image EXIF, pHash, and other metadata from ImageKit.io powered remote URL using this API.
       parameters:
         - description: |
-            Should be a valid file URL.
+            Should be a valid file URL. It should be accessible using your ImageKit.io account.
           in: query
           name: url
           required: true
           schema:
             type: string
       responses:
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: File metadata object.
           content:
@@ -2919,8 +2670,8 @@ paths:
                         InteropIndex: "R98"
                         InteropVersion: "0100"
                       makernote: {}
-        "401":
-          description: Unauthorized
+        "404":
+          description: File not found.
           content:
             application/json:
               schema:
@@ -2928,10 +2679,23 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Your request does not contain private API key.
+                    example: The requested file does not exist or is inaccessible at this time.
                   help:
                     type: string
-                    example: For support kindly contact us at support@imagekit.io .
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The url should be accessible using your ImageKit.io account.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /api/v1/files/upload:
     servers:
       - url: https://upload.imagekit.io
@@ -2987,12 +2751,50 @@ paths:
                 - $ref: '#/components/schemas/ServerSideUploadV1'
                 - $ref: '#/components/schemas/ClientSideUploadV1'
       responses:
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: File uploaded successfully.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UploadResponse"
+        "202":
+          description: File accepted for upload. Pre transformation for video is being processed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The pre-transformation has been queued successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                    - Your request is missing file parameter.
+                    - Your request contains both signature and basic auth parameter. Use only one method, you might be exposing your private API key.
+                    - Your request contains invalid expire parameter. Expire parameter should be a Unix time in less than 1 hour into the future.
+                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
+                    - Your request contains invalid file parameter. The file size exceeds limits.
+                    - Upload Limit Exceeded.
+                    - Extensions quota exceeded.
+                    - The file could not be uploaded because the transformation field is invalid.
+                    - The file could not be uploaded because transformations are supported only for image and video files.
+                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
+                    - You have sent too many requests to update the file recently. Please try again later.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /api/v2/files/upload:
     servers:
       - url: https://upload.imagekit.io
@@ -3049,12 +2851,53 @@ paths:
                 - $ref: '#/components/schemas/ServerSideUploadV2'
                 - $ref: '#/components/schemas/ClientSideUploadV2'
       responses:
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
         "200":
           description: File uploaded successfully.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UploadResponse"
+        "202":
+          description: File accepted for upload. Pre transformation for video is being processed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The pre-transformation has been queued successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                    - Your request is missing file parameter.
+                    - Your request contains both token and basic auth parameter. Use only one method, you might be exposing your private API key.
+                    - Your request contains invalid payload. It does not match with the payload used to generate token.
+                    - Your request is missing token parameter.
+                    - Your request contains expired token.
+                    - Your request has invalid token.
+                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
+                    - Your request contains invalid file parameter. The file size exceeds limits.
+                    - Upload Limit Exceeded.
+                    - Extensions quota exceeded.
+                    - The file could not be uploaded because the transformation field is invalid.
+                    - The file could not be uploaded because transformations are supported only for image and video files.
+                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
+                    - You have sent too many requests to update the file recently. Please try again later.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/accounts/usage:
     get:
       tags:
@@ -3109,6 +2952,25 @@ paths:
                     videoProcessingUnitsCount: 0
                     extensionUnitsCount: 0
                     originalCacheStorageBytes: 0
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: startDate and endDate should be within 90 days.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
 components:
   schemas:
     CustomMetadataField:
@@ -4325,6 +4187,59 @@ components:
         maxTags:
           type: integer
           description: Maximum number of tags to attach to the asset.
+  responses:  
+    RateLimitExceeded:
+      description: The request exceeded the rate limit. Contains headers indicating the limits and a message detailing the error.
+      headers:
+        X-RateLimit-Limit:
+          schema:
+            type: integer
+          description: The maximum number of requests that can be made to this endpoint in the interval specified by `X-RateLimit-Interval` response header.
+        X-RateLimit-Reset:
+          schema:
+            type: integer
+          description: The amount of time in milliseconds before you can make another request to this endpoint. Pause/sleep your workflow for this duration.
+        X-RateLimit-Interval:
+          schema:
+            type: integer
+          description: The duration of the interval in milliseconds for which this rate limit was exceeded.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: A description of the error, providing details about why the rate limit has been exceeded.
+    Unauthorized:
+      description: Unauthorized request.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                example: Your request does not contain private API key.
+              help:
+                type: string
+                example: For support kindly contact us at support@imagekit.io.
+    Forbidden:
+      description: Forbidden.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                examples: 
+                  - Your account cannot be authenticated.
+                  - Your request contains expired private API key.
+                  - Your account is disabled.
+              help:
+                type: string
+                example: For support kindly contact us at support@imagekit.io.
   examples: {}
   securitySchemes:
     basicAuth:
