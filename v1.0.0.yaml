@@ -173,7 +173,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: Array of custom metadata field objects.
           content:
             application/json:
@@ -219,7 +219,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: File details object.
           content:
             application/json:
@@ -553,7 +553,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: Custom metadata field updated successfully.
           content:
             application/json:
@@ -856,7 +856,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: Files deleted successfully.
           content:
             application/json:
@@ -1132,7 +1132,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: On success, you will receive `purgeRequestId` in the response body, which can be used to get the purge request status. This is only sent if the `purgeCache` is set to `true` in the request. Otherwise, the response is an empty JSON.
           content:
             application/json:
@@ -1189,6 +1189,25 @@ paths:
                   message:
                     type: string
                     example: File with name newFileName already exists at the same location.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reason:
+                    type: string
+                    examples:
+                      - MISSING_PARAMETER
+                      - INVALID_PARAMETER
+                      - SAME_OLD_AND_NEW_NAME
+                  message:
+                    type: string
+                    example: newFileName cannot be the same as its existing name.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -1480,7 +1499,7 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
-        "201":
+        "200":
           description: Restored file details object.
           content:
             application/json:
@@ -1520,10 +1539,8 @@ paths:
                     color: red
                   createdAt: "2019-08-24T06:14:41.313Z"
                   updatedAt: "2019-08-24T06:14:41.313Z"
-
-        
         "404":
-          description: File or file version does not exist
+          description: File or file version does not exist.
           content:
             application/json:
               schema:
