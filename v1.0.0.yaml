@@ -83,20 +83,16 @@ paths:
                         Sets this custom metadata field as required. Setting custom metadata fields on an asset will throw error if the value for all required fields are not present in upload or update asset API request body.
                     minValue:
                       description: |
-                        Minimum value of the field. Only set this property if `type` is set to `Date` or `Number`.
+                        Minimum value of the field. Only set this property if field type is `Date` or `Number`. For `Date` type field, set the minimum date in ISO8601 string format. For `Number` type field, set the minimum numeric value.
                       oneOf:
                         - type: string
-                          description: Set the minimum date in ISO8601 string format.
                         - type: number
-                          description: Set the minimum numeric value.
                     maxValue:
                       description: |
-                        Maximum value of the field. Only set this property if `type` is set to `Date` or `Number`.
+                        Maximum value of the field. Only set this property if field type is `Date` or `Number`. For `Date` type field, set the minimum date in ISO8601 string format. For `Number` type field, set the minimum numeric value.
                       oneOf:
                         - type: string
-                          description: Set the maximum date in ISO8601 string format.
                         - type: number
-                          description: Set the maximum numeric value.
                     minLength:
                       description: |
                         Minimum length of string. Only set this property if `type` is set to `Text` or `Textarea`.
@@ -124,7 +120,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CustomMetadataField"
+                $ref: "#/components/responses/CustomMetadataField"
               example:
                 id: 598821f949c0a938d57563dd
                 name: price
@@ -180,7 +176,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/CustomMetadataField"
+                  $ref: "#/components/responses/CustomMetadataField"
               example:
                 - id: 598821f949c0a938d57563dd
                   name: brand
@@ -224,7 +220,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileDetails"
+                $ref: "#/components/responses/FileDetails"
               example:
                 fileId: 598821f949c0a938d57563bd
                 type: file
@@ -316,8 +312,8 @@ paths:
                   type: array
                   items:
                     anyOf:
-                      - $ref: '#/components/schemas/RemovedotBGExtensionRequest'
-                      - $ref: '#/components/schemas/AutoTaggingExtensionRequest'
+                      - $ref: '#/components/request/RemovedotBGExtension'
+                      - $ref: '#/components/request/AutoTaggingExtension'
                   description: >
                     Array of extensions to be applied to the asset. Each extension can be configured with specific parameters based on the extension type.
                 tags:
@@ -374,7 +370,7 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: "#/components/schemas/FileDetails"
+                  - $ref: "#/components/responses/FileDetails"
                   - type: object
                     properties:
                       extensionStatus:
@@ -518,20 +514,16 @@ paths:
                         Sets this custom metadata field as required. Setting custom metadata fields on an asset will throw error if the value for all required fields are not present in upload or update asset API request body.
                     minValue:
                       description: |
-                        Minimum value of the field. Only set this property if `type` is set to `Date` or `Number`.
+                        Minimum value of the field. Only set this property if field type is `Date` or `Number`. For `Date` type field, set the minimum date in ISO8601 string format. For `Number` type field, set the minimum numeric value.
                       oneOf:
                         - type: string
-                          description: Set the minimum date in ISO8601 string format.
                         - type: number
-                          description: Set the minimum numeric value.
                     maxValue:
                       description: |
-                        Maximum value of the field. Only set this property if `type` is set to `Date` or `Number`.
+                        Maximum value of the field. Only set this property if field type is `Date` or `Number`. For `Date` type field, set the minimum date in ISO8601 string format. For `Number` type field, set the minimum numeric value.
                       oneOf:
                         - type: string
-                          description: Set the maximum date in ISO8601 string format.
                         - type: number
-                          description: Set the maximum numeric value.
                     minLength:
                       description: |
                         Minimum length of string. Only set this property if `type` is set to `Text` or `Textarea`.
@@ -558,7 +550,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/CustomMetadataField"
+                $ref: "#/components/responses/CustomMetadataField"
               example:
                 id: 598821f949c0a938d57563dd
                 name: price
@@ -705,7 +697,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/FileDetails"
+                  $ref: "#/components/responses/FileDetails"
               example:
                 - fileId: 598821f949c0a938d57563bd
                   type: file
@@ -1242,7 +1234,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/FileDetails"
+                  $ref: "#/components/responses/FileDetails"
                   example:
                     - fileId: 598821f949c0a938d57563bd
                       type: file
@@ -1357,7 +1349,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileDetails"
+                $ref: "#/components/responses/FileDetails"
               example:
                 fileId: 598821f949c0a938d81963bd
                 type: file-version
@@ -1504,7 +1496,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/FileDetails"
+                $ref: "#/components/responses/FileDetails"
                 example:
                   fileId: 598821f949c0a938d57563bd
                   type: file
@@ -2361,7 +2353,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MetadataResponse"
+                $ref: "#/components/responses/Metadata"
               examples:
                 Image:
                   value:
@@ -2551,7 +2543,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/MetadataResponse"
+                $ref: "#/components/responses/Metadata"
               examples:
                 Image:
                   value:
@@ -2765,8 +2757,8 @@ paths:
           multipart/form-data:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/ServerSideUploadV1'
-                - $ref: '#/components/schemas/ClientSideUploadV1'
+                - $ref: '#/components/request/ServerSideUploadV1'
+                - $ref: '#/components/request/ClientSideUploadV1'
       responses:
         "401":
           $ref: '#/components/responses/Unauthorized'
@@ -2777,7 +2769,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UploadResponse"
+                $ref: "#/components/responses/Upload"
         "202":
           description: File accepted for upload. Pre transformation for video is being processed.
           content:
@@ -2865,8 +2857,8 @@ paths:
           multipart/form-data:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/ServerSideUploadV2'
-                - $ref: '#/components/schemas/ClientSideUploadV2'
+                - $ref: '#/components/request/ServerSideUploadV2'
+                - $ref: '#/components/request/ClientSideUploadV2'
       responses:
         "401":
           $ref: '#/components/responses/Unauthorized'
@@ -2877,7 +2869,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UploadResponse"
+                $ref: "#/components/responses/Upload"
         "202":
           description: File accepted for upload. Pre transformation for video is being processed.
           content:
@@ -2989,475 +2981,7 @@ paths:
         "403":
           $ref: '#/components/responses/Forbidden'
 components:
-  schemas:
-    CustomMetadataField:
-      type: object
-      required:
-        - id
-        - name
-        - label
-        - schema
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the custom metadata field. Use this to update the field.
-        name:
-          type: string
-          description: |
-            API name of the custom metadata field. This becomes the key while setting `customMetadata` (key-value object) for an asset using upload or update API.
-        label:
-          type: string
-          description: |
-            Human readable name of the custom metadata field. This name is displayed as form field label to the users while setting field value on the asset in the media library UI.
-        schema:
-          type: object
-          description: An object that describes the rules for the custom metadata field value.
-          required:
-            - type
-          properties:
-            type:
-              description: Type of the custom metadata field.
-              type: string
-              enum:
-                - Text
-                - TextArea
-                - Number
-                - Date
-                - Boolean
-                - SingleSelect
-                - MultiSelect
-            selectOptions:
-              type: array
-              items: {}
-              description: |
-                An array of allowed values when field type is `SingleSelect` or `MultiSelect`.
-              example:
-                - small
-                - medium
-                - large
-                - 30
-                - 40
-                - true
-            defaultValue:
-              description: |
-                The default value for this custom metadata field. Date type of default value depends on the field type.
-            isValueRequired:
-              type: boolean
-              description: |
-                Specifies if the this custom metadata field is required or not.
-            minValue:
-              description: |
-                Minimum value of the field. It is only set if field type is `Date` or `Number`. For `Date` type field, the value will be in ISO8601 string format. For `Number` type field, it will be a numeric value.
-            maxValue:
-              description: |
-                Maximum value of the field. Only set this property if `type` is set to `Date` or `Number`. For `Date` type field, the value will be in ISO8601 string format. For `Number` type field, it will be a numeric value.
-            minLength:
-              description: |
-                Minimum length of string. Only set this property if `type` is set to `Text` or `Textarea`.
-              type: number
-            maxLength:
-              description: |
-                Maximum length of string. Only set this property if `type` is set to `Text` or `Textarea`.
-              type: number
-    FileDetails:
-      type: object
-      properties:
-        fileId:
-          type: string
-          description: Unique identifier of the asset.
-        type:
-          type: string
-          description: Type of the asset.
-        name:
-          type: string
-          description: Name of the asset.
-        filePath:
-          type: string
-          description: |
-            Path of the file. This is the path you would use in the URL to access the file. For example, if the file is at the root of the media library, the path will be `/file.jpg`. If the file is inside a folder named `images`, the path will be `/images/file.jpg`.
-        tags:
-          oneOf:
-            - type: array
-              items:
-                type: string
-            - nullable: true
-          description: |
-            An array of tags assigned to the file. Tags are used to search files in the media library.
-        AITags:
-          oneOf:
-            - type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: Name of the tag.
-                  confidence:
-                    type: number
-                    description: Confidence score of the tag.
-                  source:
-                    type: string
-                    description: Source of the tag. Possible values are `google-auto-tagging` and `aws-auto-tagging`.
-            - nullable: true
-          description: |
-            An array of tags assigned to the file by auto tagging.
-        versionInfo:
-          type: object
-          properties:
-            id:
-              type: string
-              description: Unique identifier of the file version.
-            name:
-              type: string
-              description: Name of the file version.
-          description: |
-            An object with details of the file version.
-        isPrivateFile:
-          type: boolean
-          description: |
-            Specifies if the file is private or not.
-        customCoordinates:
-          oneOf:
-            - type: string
-            - nullable: true
-          description: |
-            An string with custom coordinates of the file.
-        url:
-          type: string
-          description: |
-            URL of the file.
-        thumbnail:
-          type: string
-          description: |
-            URL of the thumbnail image. This URL is used to access the thumbnail image of the file in the media library.
-        fileType:
-          type: string
-          description: |
-            Type of the file. Possible values are `image`, `non-image`.
-        mime:
-          type: string
-          description: |
-            MIME type of the file.
-        width:
-          type: number
-          description: |
-            Width of the file.
-        height:
-          type: number
-          description: |
-            Height of the file.
-        size:
-          type: number
-          description: |
-            Size of the file in bytes.
-        hasAlpha:
-          type: boolean
-          description: |
-            Specifies if the image has an alpha channel.
-        customMetadata:
-          type: object
-          description: |
-            An object with custom metadata for the file.
-        createdAt:
-          type: string
-          description: |
-            Date and time when the file was uploaded. The date and time is in ISO8601 format.
-        updatedAt:
-          type: string
-          description: |
-            Date and time when the file was last updated. The date and time is in ISO8601 format.
-    UploadResponse:
-      type: object
-      properties:
-        fileId:
-          type: string
-          description: Unique fileId. Store this fileld in your database, as this will be used to perform update action on this file.
-        type:
-          type: string
-          description: Type of the asset.
-        name:
-          type: string
-          description: Name of the asset.
-        filePath:
-          type: string
-          description: The relative path of the file. In the case of an image, you can use this path to construct different transformations.
-        tags:
-          oneOf:
-            - type: array
-              items:
-                type: string
-            - nullable: true
-          description: The array of tags associated with the image. If no tags are set, it will be `null`.
-        AITags:
-          oneOf:
-            - type: array
-              items:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    description: Name of the tag.
-                  confidence:
-                    type: number
-                    description: Confidence score of the tag.
-                  source:
-                    type: string
-                    description: Array of `AITags` associated with the image. If no `AITags` are set, it will be null. These tags can be added using the `google-auto-tagging` or `aws-auto-tagging` extensions.
-            - nullable: true
-          description: |
-            An array of tags assigned to the uploaded file by auto tagging.
-        versionInfo:
-          type: object
-          properties:
-            id:
-              type: string
-              description: Unique identifier of the file version.
-            name:
-              type: string
-              description: Name of the file version.
-          description: |
-            An object containing the file or file version's `id` (versionId) and `name`.
-        isPrivateFile:
-          type: boolean
-          description: |
-            Is the file marked as private. It can be either `true` or `false`.
-        customCoordinates:
-          oneOf:
-            - type: string
-            - nullable: true
-          description: |
-            Value of custom coordinates associated with the image in the format `x,y,width,height`. If `customCoordinates` are not defined, then it is `null`.
-        url:
-          type: string
-          description: A publicly accessible URL of the file.
-        thumbnail:
-          type: string
-          description: In the case of an image, a small thumbnail URL.
-        fileType:
-          type: string
-          description: |
-            Type of the uploaded file. Possible values are `image`, `non-image`.
-        mime:
-          type: string
-          description: |
-            MIME Type of the file.
-          example: image/jpeg
-        height:
-          type: number
-          description: Height of the image in pixels (Only for images)
-        width:
-          type: number
-          description: Width of the image in pixels (Only for Images)
-        size:
-          type: number
-          description: Size of the image file in Bytes.
-        hasAlpha:
-          type: boolean
-          description: |
-            A boolean indicating if the image has an alpha layer or not.
-        customMetadata:
-          type: object
-          description: |
-            A key-value data associated with the asset. Use `responseField` in API request to get `customMetadata` in the upload API response. Before setting any custom metadata on an asset, you have to create the field using custom metadata fields API.
-        embeddedMetadata:
-          type: object
-          description: |
-            Consolidated embedded metadata associated with the file. It includes `exif`, `iptc`, and `xmp` data. Use `responseField` in API request to get `embeddedMetadata` in the upload API response.
-        createdAt:
-          type: string
-          description: |
-            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
-        updatedAt:
-          type: string
-          description: |
-            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
-        extensionStatus:
-          type: object
-          description: |
-            Extension names with their processing status at the time of completion of the request. It could have one of the following status values:
-
-            `success`: The extension has been successfully applied.
-            `failed`: The extension has failed and will not be retried.
-            `pending`: The extension will finish processing in some time. On completion, the final status (success / failed) will be sent to the `webhookUrl` provided.
-
-            If no extension was requested, then this parameter is not returned.
-          properties:
-            google-auto-tagging:
-              type: string
-              enum: ["success", "pending", "failed"]
-            aws-auto-tagging:
-              type: string
-              enum: ["success", "pending", "failed"]
-            remove-bg:
-              type: string
-              enum: ["success", "pending", "failed"]
-    ExifImage:
-      type: object
-      properties:
-        Make:
-          type: string
-        Model:
-          type: string
-        Orientation:
-          type: integer
-        XResolution:
-          type: integer
-        YResolution:
-          type: integer
-        ResolutionUnit:
-          type: integer
-        Software:
-          type: string
-        ModifyDate:
-          type: string
-        YCbCrPositioning:
-          type: integer
-        ExifOffset:
-          type: integer
-        GPSInfo:
-          type: integer
-    Thumbnail:
-      type: object
-      properties:
-        Compression:
-          type: integer
-        XResolution:
-          type: integer
-        YResolution:
-          type: integer
-        ResolutionUnit:
-          type: integer
-        ThumbnailOffset:
-          type: integer
-        ThumbnailLength:
-          type: integer
-    ExifDetails:
-      type: object
-      properties:
-        ExposureTime:
-          type: number
-        FNumber:
-          type: number
-        ExposureProgram:
-          type: integer
-        ISO:
-          type: integer
-        ExifVersion:
-          type: string
-        DateTimeOriginal:
-          type: string
-        CreateDate:
-          type: string
-        ShutterSpeedValue:
-          type: number
-        ApertureValue:
-          type: number
-        ExposureCompensation:
-          type: number
-        MeteringMode:
-          type: integer
-        Flash:
-          type: integer
-        FocalLength:
-          type: integer
-        SubSecTime:
-          type: string
-        FlashpixVersion:
-          type: string
-        ColorSpace:
-          type: integer
-        ExifImageWidth:
-          type: integer
-        ExifImageHeight:
-          type: integer
-        InteropOffset:
-          type: integer
-        FocalPlaneXResolution:
-          type: number
-        FocalPlaneYResolution:
-          type: number
-        FocalPlaneResolutionUnit:
-          type: integer
-        CustomRendered:
-          type: integer
-        ExposureMode:
-          type: integer
-        WhiteBalance:
-          type: integer
-        SceneCaptureType:
-          type: integer
-    Gps:
-      type: object
-      properties:
-        GPSVersionID:
-          type: array
-          items:
-            type: integer
-    Interoperability:
-      type: object
-      properties:
-        InteropIndex:
-          type: string
-        InteropVersion:
-          type: string
-    MetadataResponse:
-      type: object
-      properties:
-        height:
-          type: integer
-          description: The height of the image or video in pixels.
-        width:
-          type: integer
-          description: The width of the image or video in pixels.
-        size:
-          type: integer
-          description: The file size in bytes.
-        format:
-          type: string
-          description: The format of the file (e.g., 'jpg', 'mp4').
-        hasColorProfile:
-          type: boolean
-          description: Indicates if the image has a color profile.
-        quality:
-          type: integer
-          description: The quality indicator of the image.
-        density:
-          type: integer
-          description: The density of the image in DPI.
-        hasTransparency:
-          type: boolean
-          description: Indicates if the image contains transparent areas.
-        pHash:
-          type: string
-          description: Perceptual hash of the image.
-        bitRate:
-          type: integer
-          description: The bit rate of the video in kbps (only for video).
-        duration:
-          type: integer
-          description: The duration of the video in seconds (only for video).
-        audioCodec:
-          type: string
-          description: The audio codec used in the video (only for video).
-        videoCodec:
-          type: string
-          description: The video codec used in the video (only for video).
-        exif:
-          type: object
-          properties:
-            image:
-              $ref: '#/components/schemas/ExifImage'
-            thumbnail:
-              $ref: '#/components/schemas/Thumbnail'
-            exif:
-              $ref: '#/components/schemas/ExifDetails'
-            gps:
-              $ref: '#/components/schemas/Gps'
-            interoperability:
-              $ref: '#/components/schemas/Interoperability'
-            makernote:
-              type: object
-              additionalProperties: true
+  request:
     ClientSideUploadV1:
       type: object
       title: Client side file upload
@@ -4152,7 +3676,7 @@ components:
             
             Read more about [Adaptive bitrate streaming (ABS)](/docs/adaptive-bitrate-streaming).
           example: '{"pre": "width:300,height:300,quality:80", "post": [{"type": "thumbnail", "value": "width:100,height:100"}]}'
-    RemovedotBGExtensionRequest:
+    RemovedotBGExtension:
       title: Remove background
       type: object
       required:
@@ -4186,7 +3710,7 @@ components:
               type: string
               description: >
                 Sets a background image from a URL. If this parameter is set, `bg_color` must be empty.
-    AutoTaggingExtensionRequest:
+    AutoTaggingExtension:
       title: Auto tagging
       type: object
       required:
@@ -4205,6 +3729,492 @@ components:
           type: integer
           description: Maximum number of tags to attach to the asset.
   responses:  
+    FileDetails:
+      type: object
+      properties:
+        fileId:
+          type: string
+          description: Unique identifier of the asset.
+        type:
+          type: string
+          description: Type of the asset.
+        name:
+          type: string
+          description: Name of the asset.
+        filePath:
+          type: string
+          description: |
+            Path of the file. This is the path you would use in the URL to access the file. For example, if the file is at the root of the media library, the path will be `/file.jpg`. If the file is inside a folder named `images`, the path will be `/images/file.jpg`.
+        tags:
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - nullable: true
+          description: |
+            An array of tags assigned to the file. Tags are used to search files in the media library.
+        AITags:
+          oneOf:
+            - type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the tag.
+                  confidence:
+                    type: number
+                    description: Confidence score of the tag.
+                  source:
+                    type: string
+                    description: Source of the tag. Possible values are `google-auto-tagging` and `aws-auto-tagging`.
+            - nullable: true
+          description: |
+            An array of tags assigned to the file by auto tagging.
+        versionInfo:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the file version.
+            name:
+              type: string
+              description: Name of the file version.
+          description: |
+            An object with details of the file version.
+        isPrivateFile:
+          type: boolean
+          description: |
+            Specifies if the file is private or not.
+        customCoordinates:
+          oneOf:
+            - type: string
+            - nullable: true
+          description: |
+            An string with custom coordinates of the file.
+        url:
+          type: string
+          description: |
+            URL of the file.
+        thumbnail:
+          type: string
+          description: |
+            URL of the thumbnail image. This URL is used to access the thumbnail image of the file in the media library.
+        fileType:
+          type: string
+          description: |
+            Type of the file. Possible values are `image`, `non-image`.
+        mime:
+          type: string
+          description: |
+            MIME type of the file.
+        width:
+          type: number
+          description: |
+            Width of the file.
+        height:
+          type: number
+          description: |
+            Height of the file.
+        size:
+          type: number
+          description: |
+            Size of the file in bytes.
+        hasAlpha:
+          type: boolean
+          description: |
+            Specifies if the image has an alpha channel.
+        customMetadata:
+          type: object
+          description: |
+            An object with custom metadata for the file.
+        createdAt:
+          type: string
+          description: |
+            Date and time when the file was uploaded. The date and time is in ISO8601 format.
+        updatedAt:
+          type: string
+          description: |
+            Date and time when the file was last updated. The date and time is in ISO8601 format.
+    Upload:
+      type: object
+      properties:
+        fileId:
+          type: string
+          description: Unique fileId. Store this fileld in your database, as this will be used to perform update action on this file.
+        type:
+          type: string
+          description: Type of the asset.
+        name:
+          type: string
+          description: Name of the asset.
+        filePath:
+          type: string
+          description: The relative path of the file. In the case of an image, you can use this path to construct different transformations.
+        tags:
+          oneOf:
+            - type: array
+              items:
+                type: string
+            - nullable: true
+          description: The array of tags associated with the image. If no tags are set, it will be `null`.
+        AITags:
+          oneOf:
+            - type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Name of the tag.
+                  confidence:
+                    type: number
+                    description: Confidence score of the tag.
+                  source:
+                    type: string
+                    description: Array of `AITags` associated with the image. If no `AITags` are set, it will be null. These tags can be added using the `google-auto-tagging` or `aws-auto-tagging` extensions.
+            - nullable: true
+          description: |
+            An array of tags assigned to the uploaded file by auto tagging.
+        versionInfo:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Unique identifier of the file version.
+            name:
+              type: string
+              description: Name of the file version.
+          description: |
+            An object containing the file or file version's `id` (versionId) and `name`.
+        isPrivateFile:
+          type: boolean
+          description: |
+            Is the file marked as private. It can be either `true` or `false`.
+        customCoordinates:
+          oneOf:
+            - type: string
+            - nullable: true
+          description: |
+            Value of custom coordinates associated with the image in the format `x,y,width,height`. If `customCoordinates` are not defined, then it is `null`.
+        url:
+          type: string
+          description: A publicly accessible URL of the file.
+        thumbnail:
+          type: string
+          description: In the case of an image, a small thumbnail URL.
+        fileType:
+          type: string
+          description: |
+            Type of the uploaded file. Possible values are `image`, `non-image`.
+        mime:
+          type: string
+          description: |
+            MIME Type of the file.
+          example: image/jpeg
+        height:
+          type: number
+          description: Height of the image in pixels (Only for images)
+        width:
+          type: number
+          description: Width of the image in pixels (Only for Images)
+        size:
+          type: number
+          description: Size of the image file in Bytes.
+        hasAlpha:
+          type: boolean
+          description: |
+            A boolean indicating if the image has an alpha layer or not.
+        customMetadata:
+          type: object
+          description: |
+            A key-value data associated with the asset. Use `responseField` in API request to get `customMetadata` in the upload API response. Before setting any custom metadata on an asset, you have to create the field using custom metadata fields API.
+        embeddedMetadata:
+          type: object
+          description: |
+            Consolidated embedded metadata associated with the file. It includes `exif`, `iptc`, and `xmp` data. Use `responseField` in API request to get `embeddedMetadata` in the upload API response.
+        createdAt:
+          type: string
+          description: |
+            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
+        updatedAt:
+          type: string
+          description: |
+            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
+        extensionStatus:
+          type: object
+          description: |
+            Extension names with their processing status at the time of completion of the request. It could have one of the following status values:
+
+            `success`: The extension has been successfully applied.
+            `failed`: The extension has failed and will not be retried.
+            `pending`: The extension will finish processing in some time. On completion, the final status (success / failed) will be sent to the `webhookUrl` provided.
+
+            If no extension was requested, then this parameter is not returned.
+          properties:
+            google-auto-tagging:
+              type: string
+              enum: ["success", "pending", "failed"]
+            aws-auto-tagging:
+              type: string
+              enum: ["success", "pending", "failed"]
+            remove-bg:
+              type: string
+              enum: ["success", "pending", "failed"]
+    ExifImage:
+      type: object
+      properties:
+        Make:
+          type: string
+        Model:
+          type: string
+        Orientation:
+          type: integer
+        XResolution:
+          type: integer
+        YResolution:
+          type: integer
+        ResolutionUnit:
+          type: integer
+        Software:
+          type: string
+        ModifyDate:
+          type: string
+        YCbCrPositioning:
+          type: integer
+        ExifOffset:
+          type: integer
+        GPSInfo:
+          type: integer
+    Thumbnail:
+      type: object
+      properties:
+        Compression:
+          type: integer
+        XResolution:
+          type: integer
+        YResolution:
+          type: integer
+        ResolutionUnit:
+          type: integer
+        ThumbnailOffset:
+          type: integer
+        ThumbnailLength:
+          type: integer
+    ExifDetails:
+      type: object
+      properties:
+        ExposureTime:
+          type: number
+        FNumber:
+          type: number
+        ExposureProgram:
+          type: integer
+        ISO:
+          type: integer
+        ExifVersion:
+          type: string
+        DateTimeOriginal:
+          type: string
+        CreateDate:
+          type: string
+        ShutterSpeedValue:
+          type: number
+        ApertureValue:
+          type: number
+        ExposureCompensation:
+          type: number
+        MeteringMode:
+          type: integer
+        Flash:
+          type: integer
+        FocalLength:
+          type: integer
+        SubSecTime:
+          type: string
+        FlashpixVersion:
+          type: string
+        ColorSpace:
+          type: integer
+        ExifImageWidth:
+          type: integer
+        ExifImageHeight:
+          type: integer
+        InteropOffset:
+          type: integer
+        FocalPlaneXResolution:
+          type: number
+        FocalPlaneYResolution:
+          type: number
+        FocalPlaneResolutionUnit:
+          type: integer
+        CustomRendered:
+          type: integer
+        ExposureMode:
+          type: integer
+        WhiteBalance:
+          type: integer
+        SceneCaptureType:
+          type: integer
+    Gps:
+      type: object
+      properties:
+        GPSVersionID:
+          type: array
+          items:
+            type: integer
+    Interoperability:
+      type: object
+      properties:
+        InteropIndex:
+          type: string
+        InteropVersion:
+          type: string
+    Metadata:
+      type: object
+      properties:
+        height:
+          type: integer
+          description: The height of the image or video in pixels.
+        width:
+          type: integer
+          description: The width of the image or video in pixels.
+        size:
+          type: integer
+          description: The file size in bytes.
+        format:
+          type: string
+          description: The format of the file (e.g., 'jpg', 'mp4').
+        hasColorProfile:
+          type: boolean
+          description: Indicates if the image has a color profile.
+        quality:
+          type: integer
+          description: The quality indicator of the image.
+        density:
+          type: integer
+          description: The density of the image in DPI.
+        hasTransparency:
+          type: boolean
+          description: Indicates if the image contains transparent areas.
+        pHash:
+          type: string
+          description: Perceptual hash of the image.
+        bitRate:
+          type: integer
+          description: The bit rate of the video in kbps (only for video).
+        duration:
+          type: integer
+          description: The duration of the video in seconds (only for video).
+        audioCodec:
+          type: string
+          description: The audio codec used in the video (only for video).
+        videoCodec:
+          type: string
+          description: The video codec used in the video (only for video).
+        exif:
+          type: object
+          properties:
+            image:
+              $ref: '#/components/responses/ExifImage'
+            thumbnail:
+              $ref: '#/components/responses/Thumbnail'
+            exif:
+              $ref: '#/components/responses/ExifDetails'
+            gps:
+              $ref: '#/components/responses/Gps'
+            interoperability:
+              $ref: '#/components/responses/Interoperability'
+            makernote:
+              type: object
+              additionalProperties: true
+    CustomMetadataField:
+      type: object
+      required:
+        - id
+        - name
+        - label
+        - schema
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the custom metadata field. Use this to update the field.
+        name:
+          type: string
+          description: |
+            API name of the custom metadata field. This becomes the key while setting `customMetadata` (key-value object) for an asset using upload or update API.
+        label:
+          type: string
+          description: |
+            Human readable name of the custom metadata field. This name is displayed as form field label to the users while setting field value on the asset in the media library UI.
+        schema:
+          type: object
+          description: An object that describes the rules for the custom metadata field value.
+          required:
+            - type
+          properties:
+            type:
+              description: Type of the custom metadata field.
+              type: string
+              enum:
+                - Text
+                - TextArea
+                - Number
+                - Date
+                - Boolean
+                - SingleSelect
+                - MultiSelect
+            selectOptions:
+              type: array
+              items: {}
+              description: |
+                An array of allowed values when field type is `SingleSelect` or `MultiSelect`.
+              example:
+                - small
+                - medium
+                - large
+                - 30
+                - 40
+                - true
+            defaultValue:
+              description: |
+                The default value for this custom metadata field. Date type of default value depends on the field type.
+              oneOf:
+                - type: string
+                - type: number
+                - type: boolean
+                - type: array
+                  items: {}
+                  description: |
+                    Default value should be of type array when custom metadata field type is set to `MultiSelect`.
+                  example:
+                    - true
+                    - 10
+                    - Hello
+            isValueRequired:
+              type: boolean
+              description: |
+                Specifies if the this custom metadata field is required or not.
+            minValue:
+              description: |
+                Minimum value of the field. Only set if field type is `Date` or `Number`. For `Date` type field, the value will be in ISO8601 string format. For `Number` type field, it will be a numeric value.
+              oneOf:
+                - type: string
+                - type: number
+            maxValue:
+              description: |
+                Maximum value of the field. Only set if field type is `Date` or `Number`. For `Date` type field, the value will be in ISO8601 string format. For `Number` type field, it will be a numeric value.
+              oneOf:
+                - type: string
+                - type: number
+            minLength:
+              description: |
+                Minimum length of string. Only set if `type` is set to `Text` or `Textarea`.
+              type: number
+            maxLength:
+              description: |
+                Maximum length of string. Only set if `type` is set to `Text` or `Textarea`.
+              type: number
     RateLimitExceeded:
       description: The request exceeded the rate limit. Contains headers indicating the limits and a message detailing the error.
       headers:
