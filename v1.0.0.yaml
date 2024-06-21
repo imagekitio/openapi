@@ -5,7 +5,7 @@ info:
   description: |-
     Checkout [API overview](/docs/api-overview) to learn about ImageKit's APIs, authentication, rate limits, and error codes etc.
   contact:
-    email: developers@imagekit.io
+    email: developer@imagekit.io
     name: ImageKit Team
     url: https://imagekit.io
   termsOfService: 'https://imagekit.io/terms/'
@@ -138,11 +138,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    description: Human readable error message.
-                    example: A custom metadata field with this name already exists
+                    example: A custom metadata field with this name already exists.
                   help:
                     type: string
-                    description: Human readable help instructions.
                     example: For support kindly contact us at support@imagekit.io.
       tags:
         - Digital Asset Management (DAM)
@@ -162,6 +160,7 @@ paths:
           required: false
           schema:
             type: boolean
+          default: false
       responses:
         "429":
           $ref: '#/components/responses/RateLimitExceeded'
@@ -191,7 +190,6 @@ paths:
                     type: Number
                     minValue: 1000
                     maxValue: 3000
-        
   /v1/files/{fileId}/details:
     get:
       tags:
@@ -255,7 +253,6 @@ paths:
                   color: red
                 createdAt: "2019-08-24T06:14:41.313Z"
                 updatedAt: "2019-08-24T06:14:41.313Z"
-        
         "404":
           description: File not found.
           content:
@@ -266,6 +263,19 @@ paths:
                   message:
                     type: string
                     example: The requested file does not exist.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your request contains invalid fileId parameter.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -307,7 +317,7 @@ paths:
                 webhookUrl:
                   type: string
                   description: |
-                    The final status of pending extensions will be sent to this URL.
+                    The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](#webhook-payload-structure) about the webhook payload structure.
                 extensions:
                   type: array
                   items:
@@ -444,7 +454,9 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: Invalid custom metadata.
+                    examples:
+                    - Invalid custom metadata.
+                    - Your request contains invalid fileId parameter.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -545,6 +557,39 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                     - Cannot update a deleted custom metadata fields.
+                     - Either label or schema should be provided.
+                     - A custom metadata field with this label already exists.
+                     - Invalid schema object.
+                     - Name cannot be updated.
+                     - Missing id parameter.
+                     - Your request contains invalid ID parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "404":
+          description: Custom metadata field doesn't exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No such custom metadata field exists.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
         "200":
           description: Custom metadata field updated successfully.
           content:
@@ -582,6 +627,34 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                     - Missing id parameter.
+                     - Your request contains invalid ID parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "404":
+          description: Custom metadata field doesn't exist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: No such custom metadata field exists.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
         "204":
           description: Custom metadata field deleted successfully.
           content:
@@ -638,12 +711,15 @@ paths:
           name: searchQuery
           required: false
           description: |
-            Query string in a Lucene-like query language. Learn more about the query expression later in this section.
+            Query string in a Lucene-like query language e.g. `createdAt > "7d"`.
 
             Note : When the searchQuery parameter is present, the following query parameters will have no effect on the result:
+
             1. `tags`
             2. `type`
             3. `name`
+
+            [Learn more](#advanced-search-queries) from examples.
           schema:
             type: string
         - in: query
@@ -769,8 +845,26 @@ paths:
                   name: summer
                   createdAt: "2023-04-21T03:03:00.869Z"
                   updatedAt: "2023-04-21T03:10:22.374Z"
-                  folderPath: "/sale"
-        
+                  folderPath: "/sale"     
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples: 
+                      - The value of skip parameter should be greater than or equal to 0. Value sent is -1.
+                      - Minimum value of limit parameter is 1. Value sent is 0.
+                      - Maximum value of limit parameter is 1000. Value sent is 2000.
+                      - Your request contains invalid value for sort parameters.
+                      - "Your request contains invalid value for type parameter. Please provide one of the following: file, file-version, folder, all."
+                      - sd
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}:
     delete:
       tags:
@@ -812,17 +906,32 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your request contains invalid fileId parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/batch/deleteByFileIds:
     post:
       tags:
         - Digital Asset Management (DAM)
         - Managing assets
-      operationId: delete-multiple
-      summary: Delete multiple
+      operationId: delete-multiple-files
+      summary: Delete multiple files
       description: |
         This API deletes multiple files and all their file versions permanently.
 
         Note: If a file or specific transformation has been requested in the past, then the response is cached. Deleting a file does not purge the cache. You can purge the cache using purge cache API.
+
+        A maximum of 100 files can be deleted at a time.
       requestBody:
         content:
           application/json:
@@ -888,7 +997,23 @@ paths:
                             Error message for the file that was not deleted.
                     description: |
                       An array of fileIds that were not deleted and the error.
-        
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                     - fileIds parameter is missing.
+                     - fileIds cannot have more than 100 items.
+                     - fileIds should be an Array.
+                     - fileIds is empty.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
         "404":
           description: File not found.
           content:
@@ -1314,6 +1439,19 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Your request contains invalid fileId parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/{fileId}/versions/{versionId}:
     get:
       tags:
@@ -1396,6 +1534,21 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Your request contains invalid fileId parameter.
+                      - Your request contains invalid versionId parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
     delete:
       tags:
         - Digital Asset Management (DAM)
@@ -1443,7 +1596,10 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: You cannot delete current version of a file.
+                    examples: 
+                    - You cannot delete current version of a file.
+                    - Your request contains invalid fileId parameter.
+                    - Your request contains invalid versionId parameter.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -1544,6 +1700,21 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Your request contains invalid fileId parameter.
+                      - Your request contains invalid versionId parameter.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/addTags:
     post:
       tags:
@@ -1552,7 +1723,7 @@ paths:
       operationId: add-tags-bulk
       summary: Add tags (bulk)
       description: |
-        This API adds tags to multiple files in bulk.
+        This API adds tags to multiple files in bulk. A maximum of 50 files can be specified at a time.
       requestBody:
         content:
           application/json:
@@ -1648,6 +1819,26 @@ paths:
                       type: string
                     description: |
                       An array of fileIds that were not found.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples: 
+                      - fileIds parameter is missing.
+                      - fileIds is empty.
+                      - A maximum of 50 files can be edited at a time.
+                      - fileIds should be an Array.
+                      - tags parameter is missing.
+                      - tags array cannot be empty.
+                      - Your request contains invalid value for tags parameter. Combined length of all tags should be less than or equal to 500.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/removeTags:
     post:
       tags:
@@ -1656,7 +1847,7 @@ paths:
       operationId: remove-tags-bulk
       summary: Remove tags (bulk)
       description: |
-        This API removes tags from multiple files in bulk.
+        This API removes tags from multiple files in bulk. A maximum of 50 files can be specified at a time.
       requestBody:
         content:
           application/json:
@@ -1732,8 +1923,7 @@ paths:
                           description: |
                             Error message for the file that was not updated.
                     description: |
-                      An array of fileIds that were not updated and the error.
-        
+                      An array of fileIds that were not updated and the error.        
         "404":
           description: File not found.
           content:
@@ -1753,6 +1943,26 @@ paths:
                       type: string
                     description: |
                       An array of fileIds that were not found.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - fileIds parameter is missing.
+                      - fileIds is empty.
+                      - A maximum of 50 files can be edited at a time.
+                      - fileIds should be an Array.
+                      - tags parameter is missing.
+                      - tags array cannot be empty.
+                      - Your request contains invalid value for tags parameter. Combined length of all tags should be less than or equal to 500.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/files/removeAITags:
     post:
       tags:
@@ -1761,7 +1971,7 @@ paths:
       operationId: remove-ai-tags-bulk
       summary: Remove AI tags (bulk)
       description: |
-        This API removes AITags from multiple files in bulk.
+        This API removes AITags from multiple files in bulk. A maximum of 50 files can be specified at a time.
       requestBody:
         content:
           application/json:
@@ -1769,7 +1979,7 @@ paths:
               type: object
               required:
                 - fileIds
-                - tags
+                - AITags
               properties:
                 fileIds:
                   type: array
@@ -1777,7 +1987,7 @@ paths:
                     type: string
                   description: |
                     An array of fileIds from which you want to remove AITags.
-                tags:
+                AITags:
                   type: array
                   items:
                     type: string
@@ -1787,7 +1997,7 @@ paths:
               fileIds:
                 - 598821f949c0a938d57563bd
                 - 598821f949c0a938d57563be
-              tags:
+              AITags:
                 - t-shirt
                 - round-neck
                 - sale2019
@@ -1851,6 +2061,26 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "400":
+          description: Bad Request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - fileIds parameter is missing.
+                      - fileIds is empty.
+                      - A maximum of 50 files can be edited at a time.
+                      - fileIds should be an Array.
+                      - AITags parameter is missing.
+                      - AITags array cannot be empty.
+                      - Your request contains invalid value for AITags. Please provide an array of strings. Example - ['t-shirt','summer-sale'].
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/folder:
     post:
       tags:
@@ -1909,11 +2139,9 @@ paths:
                     example: INVALID_FOLDER_PATH
                   message:
                     type: string
-                    description: Human readable error message.
                     example: "'.' & '..' can not be used as folder-name"
                   help:
                     type: string
-                    description: Human readable help instructions.
                     example: For support kindly contact us at support@imagekit.io.
     delete:
       tags:
@@ -1978,11 +2206,9 @@ paths:
                     example: TOO_MANY_OBJECTS
                   message:
                     type: string
-                    description: Human readable error message.
                     example: Total nested assets (files, folders and file versions) are more than allowed limit of 100000 items.
                   help:
                     type: string
-                    description: Human readable help instructions.
                     example: For support kindly contact us at support@imagekit.io.
   /v1/bulkJobs/copyFolder:
     post:
@@ -2356,139 +2582,11 @@ paths:
                 $ref: "#/components/responses/Metadata"
               examples:
                 Image:
-                  value:
-                    height: 68
-                    width: 100
-                    size: 7749
-                    format: jpg
-                    hasColorProfile: true
-                    quality: 0
-                    density: 72
-                    hasTransparency: false
-                    pHash: f06830ca9f1e3e90
-                    exif:
-                      image:
-                        Make: Canon
-                        Model: Canon EOS 40D
-                        Orientation: 1
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        Software: GIMP 2.4.5
-                        ModifyDate: 2008:07:31 10:38:11
-                        YCbCrPositioning: 2
-                        ExifOffset: 214
-                        GPSInfo: 978
-                      thumbnail:
-                        Compression: 6
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        ThumbnailOffset: 1090
-                        ThumbnailLength: 1378
-                      exif:
-                        ExposureTime: 0.00625
-                        FNumber: 7.1
-                        ExposureProgram: 1
-                        ISO: 100
-                        ExifVersion: "0221"
-                        DateTimeOriginal: 2008:05:30 15:56:01
-                        CreateDate: 2008:05:30 15:56:01
-                        ShutterSpeedValue: 7.375
-                        ApertureValue: 5.625
-                        ExposureCompensation: 0
-                        MeteringMode: 5
-                        Flash: 9
-                        FocalLength: 135
-                        SubSecTime: "00"
-                        SubSecTimeOriginal: "00"
-                        SubSecTimeDigitized: "00"
-                        FlashpixVersion: "0100"
-                        ColorSpace: 1
-                        ExifImageWidth: 100
-                        ExifImageHeight: 68
-                        InteropOffset: 948
-                        FocalPlaneXResolution: 4438.356164383562
-                        FocalPlaneYResolution: 4445.969125214408
-                        FocalPlaneResolutionUnit: 2
-                        CustomRendered: 0
-                        ExposureMode: 1
-                        WhiteBalance: 0
-                        SceneCaptureType: 0
-                      gps:
-                        GPSVersionID:
-                          - 2
-                          - 2
-                          - 0
-                          - 0
-                      interoperability:
-                        InteropIndex: R98
-                        InteropVersion: "0100"
-                      makernote: {}
+                  value: 
+                    $ref: "#/components/examples/ImageMetadata"
                 Video:
-                  value:
-                    height: 720
-                    width: 1280
-                    bitRate: 546524
-                    duration: 70
-                    audioCodec: aac
-                    videoCodec: h264
-                    size: 23490
-                    exif:
-                      image:
-                        Make: "Canon"
-                        Model: "Canon EOS 40D"
-                        Orientation: 1
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        Software: "GIMP 2.4.5"
-                        ModifyDate: "2008:07:31 10:38:11"
-                        YCbCrPositioning: 2
-                        ExifOffset: 214
-                        GPSInfo: 978
-                      thumbnail:
-                        Compression: 6
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        ThumbnailOffset: 1090
-                        ThumbnailLength: 1378
-                      exif:
-                        ExposureTime: 0.00625
-                        FNumber: 7.1
-                        ExposureProgram: 1
-                        ISO: 100
-                        ExifVersion: "0221"
-                        DateTimeOriginal: "2008:05:30 15:56:01"
-                        CreateDate: "2008:05:30 15:56:01"
-                        ShutterSpeedValue: 7.375
-                        ApertureValue: 5.625
-                        ExposureCompensation: 0
-                        MeteringMode: 5
-                        Flash: 9
-                        FocalLength: 135
-                        SubSecTime: "00"
-                        SubSecTimeOriginal: "00"
-                        SubSecTimeDigitized: "00"
-                        FlashpixVersion: "0100"
-                        ColorSpace: 1
-                        ExifImageWidth: 100
-                        ExifImageHeight: 68
-                        InteropOffset: 948
-                        FocalPlaneXResolution: 4438.356164383562
-                        FocalPlaneYResolution: 4445.969125214408
-                        FocalPlaneResolutionUnit: 2
-                        CustomRendered: 0
-                        ExposureMode: 1
-                        WhiteBalance: 0
-                        SceneCaptureType: 0
-                      gps:
-                        GPSVersionID: [2, 2, 0, 0]
-                      interoperability:
-                        InteropIndex: "R98"
-                        InteropVersion: "0100"
-                      makernote: {}
+                  value: 
+                    $ref: "#/components/examples/VideoMetadata"
         "404":
           description: File not found.
           content:
@@ -2511,7 +2609,7 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: The requested file is corrupt or invalid.
+                    examples: The requested file is corrupt or invalid.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -2546,139 +2644,11 @@ paths:
                 $ref: "#/components/responses/Metadata"
               examples:
                 Image:
-                  value:
-                    height: 68
-                    width: 100
-                    size: 7749
-                    format: jpg
-                    hasColorProfile: true
-                    quality: 0
-                    density: 72
-                    hasTransparency: false
-                    pHash: f06830ca9f1e3e90
-                    exif:
-                      image:
-                        Make: Canon
-                        Model: Canon EOS 40D
-                        Orientation: 1
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        Software: GIMP 2.4.5
-                        ModifyDate: 2008:07:31 10:38:11
-                        YCbCrPositioning: 2
-                        ExifOffset: 214
-                        GPSInfo: 978
-                      thumbnail:
-                        Compression: 6
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        ThumbnailOffset: 1090
-                        ThumbnailLength: 1378
-                      exif:
-                        ExposureTime: 0.00625
-                        FNumber: 7.1
-                        ExposureProgram: 1
-                        ISO: 100
-                        ExifVersion: "0221"
-                        DateTimeOriginal: 2008:05:30 15:56:01
-                        CreateDate: 2008:05:30 15:56:01
-                        ShutterSpeedValue: 7.375
-                        ApertureValue: 5.625
-                        ExposureCompensation: 0
-                        MeteringMode: 5
-                        Flash: 9
-                        FocalLength: 135
-                        SubSecTime: "00"
-                        SubSecTimeOriginal: "00"
-                        SubSecTimeDigitized: "00"
-                        FlashpixVersion: "0100"
-                        ColorSpace: 1
-                        ExifImageWidth: 100
-                        ExifImageHeight: 68
-                        InteropOffset: 948
-                        FocalPlaneXResolution: 4438.356164383562
-                        FocalPlaneYResolution: 4445.969125214408
-                        FocalPlaneResolutionUnit: 2
-                        CustomRendered: 0
-                        ExposureMode: 1
-                        WhiteBalance: 0
-                        SceneCaptureType: 0
-                      gps:
-                        GPSVersionID:
-                          - 2
-                          - 2
-                          - 0
-                          - 0
-                      interoperability:
-                        InteropIndex: R98
-                        InteropVersion: "0100"
-                      makernote: {}
+                  value: 
+                    $ref: "#/components/examples/ImageMetadata"
                 Video:
-                  value:
-                    height: 720
-                    width: 1280
-                    bitRate: 546524
-                    duration: 70
-                    audioCodec: aac
-                    videoCodec: h264
-                    size: 23490
-                    exif:
-                      image:
-                        Make: "Canon"
-                        Model: "Canon EOS 40D"
-                        Orientation: 1
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        Software: "GIMP 2.4.5"
-                        ModifyDate: "2008:07:31 10:38:11"
-                        YCbCrPositioning: 2
-                        ExifOffset: 214
-                        GPSInfo: 978
-                      thumbnail:
-                        Compression: 6
-                        XResolution: 72
-                        YResolution: 72
-                        ResolutionUnit: 2
-                        ThumbnailOffset: 1090
-                        ThumbnailLength: 1378
-                      exif:
-                        ExposureTime: 0.00625
-                        FNumber: 7.1
-                        ExposureProgram: 1
-                        ISO: 100
-                        ExifVersion: "0221"
-                        DateTimeOriginal: "2008:05:30 15:56:01"
-                        CreateDate: "2008:05:30 15:56:01"
-                        ShutterSpeedValue: 7.375
-                        ApertureValue: 5.625
-                        ExposureCompensation: 0
-                        MeteringMode: 5
-                        Flash: 9
-                        FocalLength: 135
-                        SubSecTime: "00"
-                        SubSecTimeOriginal: "00"
-                        SubSecTimeDigitized: "00"
-                        FlashpixVersion: "0100"
-                        ColorSpace: 1
-                        ExifImageWidth: 100
-                        ExifImageHeight: 68
-                        InteropOffset: 948
-                        FocalPlaneXResolution: 4438.356164383562
-                        FocalPlaneYResolution: 4445.969125214408
-                        FocalPlaneResolutionUnit: 2
-                        CustomRendered: 0
-                        ExposureMode: 1
-                        WhiteBalance: 0
-                        SceneCaptureType: 0
-                      gps:
-                        GPSVersionID: [2, 2, 0, 0]
-                      interoperability:
-                        InteropIndex: "R98"
-                        InteropVersion: "0100"
-                      makernote: {}
+                  value: 
+                    $ref: "#/components/examples/VideoMetadata"
         "404":
           description: File not found.
           content:
@@ -2770,6 +2740,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/responses/Upload"
+              examples:
+                Simple image file:
+                  value:
+                    $ref: "#/components/examples/UploadResponseImage"
+                Simple video file:
+                  value:
+                    $ref: "#/components/examples/UploadResonseVideo"
+                Image with EmbeddedMetadata:
+                  value:
+                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
         "202":
           description: File accepted for upload. Pre transformation for video is being processed.
           content:
@@ -2870,6 +2850,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/responses/Upload"
+              examples:
+                Simple image file:
+                  value:
+                    $ref: "#/components/examples/UploadResponseImage"
+                Simple video file:
+                  value:
+                    $ref: "#/components/examples/UploadResonseVideo"
+                Image with EmbeddedMetadata:
+                  value:
+                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
         "202":
           description: File accepted for upload. Pre transformation for video is being processed.
           content:
@@ -3112,13 +3102,13 @@ components:
         responseFields:
           type: string
           description: >
-            Comma-separated values of the fields that you want the API to return in the response. 
-            
-            
+            Comma-separated values of the fields that you want the API to return in the response.
+
+
             For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
 
-            
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `customMetadata`, and `metadata`.
+
+            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
         extensions:
           type: string
           description: >
@@ -3127,7 +3117,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of pending extensions will be sent to this URL.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3284,13 +3274,13 @@ components:
         responseFields:
           type: string
           description: >
-            Comma-separated values of the fields that you want the API to return in the response. 
-            
-            
+            Comma-separated values of the fields that you want the API to return in the response.
+
+
             For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
 
-            
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `customMetadata`, and `metadata`.
+
+            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
         extensions:
           type: string
           description: >
@@ -3299,7 +3289,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of pending extensions will be sent to this URL.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3454,13 +3444,13 @@ components:
         responseFields:
           type: string
           description: >
-            Comma-separated values of the fields that you want the API to return in the response. 
-            
-            
+            Comma-separated values of the fields that you want the API to return in the response.
+
+
             For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
 
-            
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `customMetadata`, and `metadata`.
+
+            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
         extensions:
           type: string
           description: >
@@ -3469,7 +3459,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of pending extensions will be sent to this URL.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3609,14 +3599,14 @@ components:
               - If this field is not specified and the file is overwritten, then customCoordinates will be removed.
         responseFields:
           type: string
-          description: >
-            Comma-separated values of the fields that you want the API to return in the response. 
-            
-            
+          description: |
+            Comma-separated values of the fields that you want the API to return in the response.
+
+
             For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
 
-            
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `customMetadata`, and `metadata`.
+
+            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
         extensions:
           type: string
           description: >
@@ -3625,7 +3615,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of pending extensions will be sent to this URL.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3842,22 +3832,46 @@ components:
         fileId:
           type: string
           description: Unique fileId. Store this fileld in your database, as this will be used to perform update action on this file.
-        type:
-          type: string
-          description: Type of the asset.
         name:
           type: string
           description: Name of the asset.
         filePath:
           type: string
-          description: The relative path of the file. In the case of an image, you can use this path to construct different transformations.
+          description: The relative path of the file in the media library e.g. `/marketing-assets/new-banner.jpg`.
+        url:
+          type: string
+          description: A publicly accessible URL of the file.
+        thumbnailUrl:
+          type: string
+          description: In the case of an image, a small thumbnail URL.
+        height:
+          type: number
+          description: Height of the image in pixels (Only for images)
+        width:
+          type: number
+          description: Width of the image in pixels (Only for Images)
+        size:
+          type: number
+          description: Size of the image file in Bytes.
+        bitRate:
+          type: integer
+          description: The bit rate of the video in kbps (only for video).
+        duration:
+          type: integer
+          description: The duration of the video in seconds (only for video).
+        audioCodec:
+          type: string
+          description: The audio codec used in the video (only for video).
+        videoCodec:
+          type: string
+          description: The video codec used in the video (only for video).
         tags:
           oneOf:
             - type: array
               items:
                 type: string
-            - nullable: true
-          description: The array of tags associated with the image. If no tags are set, it will be `null`.
+          nullable: true
+          description: The array of tags associated with the asset. If no tags are set, it will be `null`. Send `tags` in `responseFields` in API request to get the value of this field.
         AITags:
           oneOf:
             - type: array
@@ -3873,7 +3887,7 @@ components:
                   source:
                     type: string
                     description: Array of `AITags` associated with the image. If no `AITags` are set, it will be null. These tags can be added using the `google-auto-tagging` or `aws-auto-tagging` extensions.
-            - nullable: true
+          nullable: true
           description: |
             An array of tags assigned to the uploaded file by auto tagging.
         versionInfo:
@@ -3890,57 +3904,25 @@ components:
         isPrivateFile:
           type: boolean
           description: |
-            Is the file marked as private. It can be either `true` or `false`.
+            Is the file marked as private. It can be either `true` or `false`. Send `isPrivateFile` in `responseFields` in API request to get the value of this field.
+        isPublished:
+          type: boolean
+          description: |
+            Is the file published or in draft state. It can be either `true` or `false`. Send `isPublished` in `responseFields` in API request to get the value of this field.
         customCoordinates:
           oneOf:
             - type: string
-            - nullable: true
+          nullable: true
           description: |
-            Value of custom coordinates associated with the image in the format `x,y,width,height`. If `customCoordinates` are not defined, then it is `null`.
-        url:
-          type: string
-          description: A publicly accessible URL of the file.
-        thumbnail:
-          type: string
-          description: In the case of an image, a small thumbnail URL.
+            Value of custom coordinates associated with the image in the format `x,y,width,height`. If `customCoordinates` are not defined, then it is `null`. Send `customCoordinates` in `responseFields` in API request to get the value of this field.
         fileType:
           type: string
           description: |
             Type of the uploaded file. Possible values are `image`, `non-image`.
-        mime:
-          type: string
-          description: |
-            MIME Type of the file.
-          example: image/jpeg
-        height:
-          type: number
-          description: Height of the image in pixels (Only for images)
-        width:
-          type: number
-          description: Width of the image in pixels (Only for Images)
-        size:
-          type: number
-          description: Size of the image file in Bytes.
-        hasAlpha:
-          type: boolean
-          description: |
-            A boolean indicating if the image has an alpha layer or not.
         customMetadata:
           type: object
           description: |
-            A key-value data associated with the asset. Use `responseField` in API request to get `customMetadata` in the upload API response. Before setting any custom metadata on an asset, you have to create the field using custom metadata fields API.
-        embeddedMetadata:
-          type: object
-          description: |
-            Consolidated embedded metadata associated with the file. It includes `exif`, `iptc`, and `xmp` data. Use `responseField` in API request to get `embeddedMetadata` in the upload API response.
-        createdAt:
-          type: string
-          description: |
-            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
-        updatedAt:
-          type: string
-          description: |
-            The date and time when the file was first uploaded. The format is YYYY-MM-DDTHH:mm:ss.sssZ
+            A key-value data associated with the asset. Use `responseField` in API request to get `customMetadata` in the upload API response. Before setting any custom metadata on an asset, you have to create the field using custom metadata fields API. Send `customMetadata` in `responseFields` in API request to get the value of this field.
         extensionStatus:
           type: object
           description: |
@@ -3961,6 +3943,16 @@ components:
             remove-bg:
               type: string
               enum: ["success", "pending", "failed"]
+        metadata:
+          type: object
+          $ref: "#/components/responses/Metadata"
+          description: |
+            Legacy metadata. Send `metadata` in `responseFields` in API request to get metadata in the upload API response.
+        embeddedMetadata:
+          type: object
+          $ref: "#/components/responses/EmbeddedMetadata"
+          description:
+            Consolidated embedded metadata associated with the file. It includes exif, iptc, and xmp data. Send `embeddedMetadata` in `responseFields` in API request to get embeddedMetadata in the upload API response.
     ExifImage:
       type: object
       properties:
@@ -4070,6 +4062,761 @@ components:
           type: string
         InteropVersion:
           type: string
+    EmbeddedMetadata:
+      type: object
+      properties:
+        Orientation:
+          type: string
+          example: "Horizontal (normal)"
+        ExifVersion:
+          type: string
+          example: "0232"
+        ImageDescription:
+          type: string
+          example: "The description aka caption (ref2019.1)"
+        XResolution:
+          type: number
+          example: 72
+        YResolution:
+          type: number
+          example: 72
+        ResolutionUnit:
+          type: string
+          example: "inches"
+        Artist:
+          type: string
+          example: "Creator1 (ref2019.1)"
+        Copyright:
+          type: string
+          example: "Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)"
+        DateTimeOriginal:
+          type: string
+          format: date-time
+          example: "2019-10-16T19:01:03.000Z"
+        OffsetTimeOriginal:
+          type: string
+          example: "+00:00"
+        ComponentsConfiguration:
+          type: string
+          example: "Y,Cb,Cr,-"
+        FlashpixVersion:
+          type: string
+          example: "0100"
+        ColorSpace:
+          type: string
+          example: "Uncalibrated"
+        ObjectAttributeReference:
+          type: string
+          example: "A Genre (ref2019.1)"
+        ObjectName:
+          type: string
+          example: "The Title (ref2019.1)"
+        SubjectReference:
+          type: array
+          items:
+            type: string
+          example: ["IPTC:1ref2019.1", "IPTC:2ref2019.1", "IPTC:3ref2019.1"]
+        Keywords:
+          type: array
+          items:
+            type: string
+          example: ["Keyword1ref2019.1", "Keyword2ref2019.1", "Keyword3ref2019.1"]
+        SpecialInstructions:
+          type: string
+          example: "An Instruction (ref2019.1)"
+        TimeCreated:
+          type: string
+          example: "19:01:03+00:00"
+        Byline:
+          type: string
+          example: "Creator1 (ref2019.1)"
+        BylineTitle:
+          type: string
+          example: "Creator's Job Title  (ref2019.1)"
+        Sublocation:
+          type: string
+          example: "Sublocation (Core) (ref2019.1)"
+        ProvinceState:
+          type: string
+          example: "Province/State(Core)(ref2019.1)"
+        CountryPrimaryLocationCode:
+          type: string
+          example: "R19"
+        CountryPrimaryLocationName:
+          type: string
+          example: "Country (Core) (ref2019.1)"
+        OriginalTransmissionReference:
+          type: string
+          example: "Job Id (ref2019.1)"
+        CopyrightNotice:
+          type: string
+          example: "Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)"
+        CaptionAbstract:
+          type: string
+          example: "The description aka caption (ref2019.1)"
+        WriterEditor:
+          type: string
+          example: "Description Writer (ref2019.1)"
+        ApplicationRecordVersion:
+          type: integer
+          example: 4
+        CountryCode:
+          type: string
+          example: "R19"
+        CreatorCity:
+          type: string
+          example: "Creator's CI: City (ref2019.1)"
+        CreatorCountry:
+          type: string
+          example: "Creator's CI: Country (ref2019.1)"
+        CreatorAddress:
+          type: string
+          example: "Creator's CI: Address, line 1 (ref2019.1)"
+        CreatorPostalCode:
+          type: string
+          example: "Creator's CI: Postcode (ref2019.1)"
+        CreatorRegion:
+          type: string
+          example: "Creator's CI: State/Province (ref2019.1)"
+        CreatorWorkEmail:
+          type: string
+          example: "Creator's CI: Email@1, Email@2 (ref2019.1)"
+        CreatorWorkTelephone:
+          type: string
+          example: "Creator's CI: Phone # 1, Phone # 2 (ref2019.1)"
+        CreatorWorkURL:
+          type: string
+          example: "http://www.Creators.CI/WebAddress/ref2019.1"
+        IntellectualGenre:
+          type: string
+          example: "A Genre (ref2019.1)"
+        Location:
+          type: string
+          example: "Sublocation (Core) (ref2019.1)"
+        Scene:
+          type: array
+          items:
+            type: string
+          example: ["IPTC-Scene-Code1 (ref2019.1)", "IPTC-Scene-Code2 (ref2019.1)"]
+        SubjectCode:
+          type: array
+          items:
+            type: string
+          example: ["IPTC:1ref2019.1", "IPTC:2ref2019.1", "IPTC:3ref2019.1"]
+        AboutCvTermCvId:
+          type: string
+          example: "http://example.com/cv/about/ref2019.1"
+        AboutCvTermId:
+          type: string
+          example: "http://example.com/cv/about/ref2019.1/code987"
+        AboutCvTermName:
+          type: string
+          example: "CV-Term Name 1 (ref2019.1)"
+        AboutCvTermRefinedAbout:
+          type: string
+          example: "http://example.com/cv/refinements2/ref2019.1/codeX145"
+        AdditionalModelInformation:
+          type: string
+          example: "Additional Model Info (ref2019.1)"
+        ArtworkCircaDateCreated:
+          type: string
+          example: "AO Circa Date: between 1550 and 1600 (ref2019.1)"
+        ArtworkContentDescription:
+          type: string
+          example: "AO Content Description 1 (ref2019.1)"
+        ArtworkContributionDescription:
+          type: string
+          example: "AO Contribution Description 1 (ref2019.1)"
+        ArtworkCopyrightNotice:
+          type: string
+          example: "AO Copyright Notice 1 (ref2019.1)"
+        ArtworkCreator:
+          type: array
+          items:
+            type: string
+          example: ["AO Creator Name 1a (ref2019.1)", "AO Creator Name 1b (ref2019.1)"]
+        ArtworkCreatorID:
+          type: array
+          items:
+            type: string
+          example: ["AO Creator Id 1a (ref2019.1)", "AO Creator Id 1b (ref2019.1)"]
+        ArtworkCopyrightOwnerID:
+          type: string
+          example: "AO Current Copyright Owner ID 1 (ref2019.1)"
+        ArtworkCopyrightOwnerName:
+          type: string
+          example: "AO Current Copyright Owner Name 1 (ref2019.1)"
+        ArtworkLicensorID:
+          type: string
+          example: "AO Current Licensor ID 1 (ref2019.1)"
+        ArtworkLicensorName:
+          type: string
+          example: "AO Current Licensor Name 1 (ref2019.1)"
+        ArtworkDateCreated:
+          type: string
+          format: date-time
+          example: "1919-10-16T19:01:00.000Z"
+        ArtworkPhysicalDescription:
+          type: string
+          example: "AO Physical Description 1 (ref2019.1)"
+        ArtworkSource:
+          type: string
+          example: "AO Source 1 (ref2019.1)"
+        ArtworkSourceInventoryNo:
+          type: string
+          example: "AO Source Inventory No 1 (ref2019.1)"
+        ArtworkSourceInvURL:
+          type: string
+          example: "AO Source Inventory URL (ref2019.1)"
+        ArtworkStylePeriod:
+          type: array
+          items:
+            type: string
+          example: ["AO Style Baroque (ref2019.1)", "AO Style Italian Baroque (ref2019.1)"]
+        ArtworkTitle:
+          type: string
+          example: "AO Title 1 (ref2019.1)"
+        DigitalImageGUID:
+          type: string
+          example: "http://example.com/imageGUIDs/TestGUID12345/ref2019.1"
+        DigitalSourceType:
+          type: string
+          example: "http://cv.iptc.org/newscodes/digitalsourcetype/softwareImage"
+        EmbeddedEncodedRightsExpr:
+          type: string
+          example: "The Encoded Rights Expression (ref2019.1)"
+        EmbeddedEncodedRightsExprType:
+          type: string
+          example: "IANA Media Type of ERE (ref2019.1)"
+        EmbeddedEncodedRightsExprLangID:
+          type: string
+          example: "http://example.org/RELids/id4711/ref2019.1"
+        Event:
+          type: string
+          example: "An Event (ref2019.1)"
+        GenreCvId:
+          type: string
+          example: "http://example.com/cv/genre/ref2019.1"
+        GenreCvTermId:
+          type: string
+          example: "http://example.com/cv/genre/ref2019.1/code1369"
+        GenreCvTermName:
+          type: string
+          example: "Genre CV-Term Name 1 (ref2019.1)"
+        GenreCvTermRefinedAbout:
+          type: string
+          example: "http://example.com/cv/genrerefinements2/ref2019.1/codeY864"
+        ImageRegionName:
+          type: array
+          items:
+            type: string
+          example: ["Listener 1", "Listener 2", "Speaker 1"]
+        ImageRegionOrganisationInImageName:
+          type: array
+          items:
+            type: string
+          example: [
+            "Organisation name no 1 in region persltr2 (ref2019.1)",
+            "Organisation name no 1 in region persltr2 (ref2019.1)",
+            "Organisation name no 1 in region persltr3 (ref2019.1)"
+          ]
+        ImageRegionPersonInImage:
+          type: array
+          items:
+            type: string
+          example: [
+            "Person name no 1 in region persltr2 (ref2019.1)",
+            "Person name no 1 in region persltr3 (ref2019.1)",
+            "Person name no 1 in region persltr1 (ref2019.1)"
+          ]
+        ImageRegionBoundaryH:
+          type: array
+          items:
+            type: number
+          example: [0.385]
+        ImageRegionBoundaryShape:
+          type: array
+          items:
+            type: string
+          example: ["rectangle", "circle", "polygon"]
+        ImageRegionBoundaryUnit:
+          type: array
+          items:
+            type: string
+          example: ["relative", "relative", "relative"]
+        ImageRegionBoundaryW:
+          type: array
+          items:
+            type: number
+          example: [0.127]
+        ImageRegionBoundaryX:
+          type: array
+          items:
+            type: number
+          example: [0.31, 0.59]
+        ImageRegionBoundaryY:
+          type: array
+          items:
+            type: number
+          example: [0.18, 0.426]
+        ImageRegionCtypeName:
+          type: array
+          items:
+            type: string
+          example: [
+            "Region Boundary Content Type Name (ref2019.1)",
+            "Region Boundary Content Type Name (ref2019.1)",
+            "Region Boundary Content Type Name (ref2019.1)"
+          ]
+        ImageRegionCtypeIdentifier:
+          type: array
+          items:
+            type: string
+          example: [
+            "https://example.org/rctype/type2019.1a",
+            "https://example.org/rctype/type2019.1b",
+            "https://example.org/rctype/type2019.1a",
+            "https://example.org/rctype/type2019.1b",
+            "https://example.org/rctype/type2019.1a",
+            "https://example.org/rctype/type2019.1b"
+          ]
+        ImageRegionID:
+          type: array
+          items:
+            type: string
+          example: ["persltr2", "persltr3", "persltr1"]
+        ImageRegionRoleName:
+          type: array
+          items:
+            type: string
+          example: [
+            "Region Boundary Content Role Name (ref2019.1)",
+            "Region Boundary Content Role Name (ref2019.1)",
+            "Region Boundary Content Role Name (ref2019.1)"
+          ]
+        ImageRegionRoleIdentifier:
+          type: array
+          items:
+            type: string
+          example: [
+            "https://example.org/rrole/role2019.1a",
+            "https://example.org/rrole/role2019.1b",
+            "https://example.org/rrole/role2019.1a",
+            "https://example.org/rrole/role2019.1b",
+            "https://example.org/rrole/role2019.1a",
+            "https://example.org/rrole/role2019.1b"
+          ]
+        ImageRegionBoundaryRx:
+          type: array
+          items:
+            type: number
+          example: [0.068]
+        ImageRegionBoundaryVerticesX:
+          type: array
+          items:
+            type: number
+          example: [0.05, 0.148, 0.375]
+        ImageRegionBoundaryVerticesY:
+          type: array
+          items:
+            type: number
+          example: [0.713, 0.041, 0.863]
+        LinkedEncodedRightsExpr:
+          type: string
+          example: "http://example.org/linkedrightsexpression/id986/ref2019.1"
+        LinkedEncodedRightsExprType:
+          type: string
+          example: "IANA Media Type of ERE (ref2019.1)"
+        LinkedEncodedRightsExprLangID:
+          type: string
+          example: "http://example.org/RELids/id4712/ref2019.1"
+        LocationCreatedCity:
+          type: string
+          example: "City (Location created1) (ref2019.1)"
+        LocationCreatedCountryCode:
+          type: string
+          example: "R17"
+        LocationCreatedCountryName:
+          type: string
+          example: "CountryName (Location created1) (ref2019.1)"
+        LocationCreatedLocationId:
+          type: string
+          example: "Location Id (Location created1) (ref2019.1)"
+        LocationCreatedLocationName:
+          type: string
+          example: "Location Name (Location created1) (ref2019.1)"
+        LocationCreatedProvinceState:
+          type: string
+          example: "Province/State (Location created1) (ref2019.1)"
+        LocationCreatedSublocation:
+          type: string
+          example: "Sublocation (Location created1) (ref2019.1)"
+        LocationCreatedWorldRegion:
+          type: string
+          example: "Worldregion (Location created1) (ref2019.1)"
+        LocationCreatedGPSAltitude:
+          type: string
+          example: "480 m"
+        LocationCreatedGPSLatitude:
+          type: string
+          example: "48,16.5N"
+        LocationCreatedGPSLongitude:
+          type: string
+          example: "16,20.28E"
+        LocationShownCity:
+          type: array
+          items:
+            type: string
+          example: ["City (Location shown1) (ref2019.1)", "City (Location shown2) (ref2019.1)"]
+        LocationShownCountryCode:
+          type: array
+          items:
+            type: string
+          example: ["R17", "R17"]
+        LocationShownCountryName:
+          type: array
+          items:
+            type: string
+          example: [
+            "CountryName (Location shown1) (ref2019.1)",
+            "CountryName (Location shown2) (ref2019.1)"
+          ]
+        LocationShownLocationId:
+          type: array
+          items:
+            type: string
+          example: [
+            "Location Id 1a(Location shown1) (ref2019.1)",
+            "Location Id 1b(Location shown1) (ref2019.1)",
+            "Location Id 2a(Location shown2) (ref2019.1)",
+            "Location Id 2b(Location shown2) (ref2019.1)"
+          ]
+        LocationShownLocationName:
+          type: array
+          items:
+            type: string
+          example: [
+            "Location Name (Location shown1) (ref2019.1)",
+            "Location Name (Location shown2) (ref2019.1)"
+          ]
+        LocationShownProvinceState:
+          type: array
+          items:
+            type: string
+          example: [
+            "Province/State (Location shown1) (ref2019.1)",
+            "Province/State (Location shown2) (ref2019.1)"
+          ]
+        LocationShownSublocation:
+          type: array
+          items:
+            type: string
+          example: [
+            "Sublocation (Location shown1) (ref2019.1)",
+            "Sublocation (Location shown2) (ref2019.1)"
+          ]
+        LocationShownWorldRegion:
+          type: array
+          items:
+            type: string
+          example: [
+            "Worldregion (Location shown1) (ref2019.1)",
+            "Worldregion (Location shown2) (ref2019.1)"
+          ]
+        LocationShownGPSAltitude:
+          type: array
+          items:
+            type: string
+          example: ["140 m", "120 m"]
+        LocationShownGPSLatitude:
+          type: array
+          items:
+            type: string
+          example: ["48,8.82N", "47,57.12N"]
+        LocationShownGPSLongitude:
+          type: array
+          items:
+            type: string
+          example: ["17,5.88E", "16,49.8E"]
+        MaxAvailHeight:
+          type: number
+          example: 20
+        MaxAvailWidth:
+          type: number
+          example: 19
+        ModelAge:
+          type: array
+          items:
+            type: number
+          example: [25, 27, 30]
+        OrganisationInImageCode:
+          type: array
+          items:
+            type: string
+          example: [
+            "Organisation Code 1 (ref2019.1)",
+            "Organisation Code 2 (ref2019.1)",
+            "Organisation Code 3 (ref2019.1)"
+          ]
+        OrganisationInImageName:
+          type: array
+          items:
+            type: string
+          example: [
+            "Organisation Name 1 (ref2019.1)",
+            "Organisation Name 2 (ref2019.1)",
+            "Organisation Name 3 (ref2019.1)"
+          ]
+        PersonInImage:
+          type: array
+          items:
+            type: string
+          example: ["Person Shown 1 (ref2019.1)", "Person Shown 2 (ref2019.1)"]
+        PersonInImageCvTermCvId:
+          type: array
+          items:
+            type: string
+          example: ["http://example.com/cv/test99/ref2019.1"]
+        PersonInImageCvTermId:
+          type: array
+          items:
+            type: string
+          example: ["http://example.com/cv/test99/code987/ref2019.1"]
+        PersonInImageCvTermName:
+          type: array
+          items:
+            type: string
+          example: ["Person Characteristic Name 1 (ref2019.1)"]
+        PersonInImageCvTermRefinedAbout:
+          type: array
+          items:
+            type: string
+          example: ["http://example.com/cv/refinements987/codeY765/ref2019.1"]
+        PersonInImageDescription:
+          type: array
+          items:
+            type: string
+          example: ["Person Description 1 (ref2019.1)"]
+        PersonInImageId:
+          type: array
+          items:
+            type: string
+          example: [
+            "http://wikidata.org/item/Q123456789/ref2019.1",
+            "http://freebase.com/m/987654321/ref2019.1"
+          ]
+        PersonInImageName:
+          type: array
+          items:
+            type: string
+          example: ["Person Name 1 (ref2019.1)"]
+        ProductInImageDescription:
+          type: array
+          items:
+            type: string
+          example: ["Product Description 1 (ref2019.1)"]
+        ProductInImageGTIN:
+          type: array
+          items:
+            type: number
+          example: [123456782019.1]
+        ProductInImageName:
+          type: array
+          items:
+            type: string
+          example: ["Product Name 1 (ref2019.1)"]
+        RegistryEntryRole:
+          type: array
+          items:
+            type: string
+          example: [
+            "Registry Entry Role ID 1 (ref2019.1)",
+            "Registry Entry Role ID 2 (ref2019.1)"
+          ]
+        RegistryItemID:
+          type: array
+          items:
+            type: string
+          example: [
+            "Registry Image ID 1 (ref2019.1)",
+            "Registry Image ID 2 (ref2019.1)"
+          ]
+        RegistryOrganisationID:
+          type: array
+          items:
+            type: string
+          example: [
+            "Registry Organisation ID 1 (ref2019.1)",
+            "Registry Organisation ID 2 (ref2019.1)"
+          ]
+        Creator:
+          type: string
+          example: "Creator1 (ref2019.1)"
+        Description:
+          type: string
+          example: "The description aka caption (ref2019.1)"
+        Rights:
+          type: string
+          example: "Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)"
+        Subject:
+          type: array
+          items:
+            type: string
+          example: ["Keyword1ref2019.1", "Keyword2ref2019.1", "Keyword3ref2019.1"]
+        Title:
+          type: string
+          example: "The Title (ref2019.1)"
+        AuthorsPosition:
+          type: string
+          example: "Creator's Job Title  (ref2019.1)"
+        CaptionWriter:
+          type: string
+          example: "Description Writer (ref2019.1)"
+        City:
+          type: string
+          example: "City (Core) (ref2019.1)"
+        Country:
+          type: string
+          example: "Country (Core) (ref2019.1)"
+        Credit:
+          type: string
+          example: "Credit Line (ref2019.1)"
+        DateCreated:
+          type: string
+          format: date-time
+          example: "2019-10-16T00:00:00.000Z"
+        Headline:
+          type: string
+          example: "The Headline (ref2019.1)"
+        Instructions:
+          type: string
+          example: "An Instruction (ref2019.1)"
+        Source:
+          type: string
+          example: "Source (ref2019.1)"
+        State:
+          type: string
+          example: "Province/State(Core)(ref2019.1)"
+        TransmissionReference:
+          type: string
+          example: "Job Id (ref2019.1)"
+        CopyrightOwnerID:
+          type: array
+          items:
+            type: string
+          example: ["Copyright Owner Id 1 (ref2019.1)", "Copyright Owner Id 2 (ref2019.1)"]
+        CopyrightOwnerName:
+          type: array
+          items:
+            type: string
+          example: ["Copyright Owner Name 1 (ref2019.1)", "Copyright Owner Name 2 (ref2019.1)"]
+        ImageCreatorID:
+          type: string
+          example: "Image Creator Id 1 (ref2019.1)"
+        ImageCreatorName:
+          type: string
+          example: "Image Creator Name 1 (ref2019.1)"
+        ImageCreatorImageID:
+          type: string
+          example: "Image Creator Image ID (ref2019.1)"
+        ImageSupplierID:
+          type: string
+          example: "Image Supplier Id (ref2019.1)"
+        ImageSupplierName:
+          type: string
+          example: "Image Supplier Name (ref2019.1)"
+        ImageSupplierImageID:
+          type: string
+          example: "Image Supplier Image ID (ref2019.1)"
+        LicensorCity:
+          type: array
+          items:
+            type: string
+          example: ["Licensor City 1 (ref2019.1)", "Licensor City 2 (ref2019.1)"]
+        LicensorCountry:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Country 1 (ref2019.1)", "Licensor Country 2 (ref2019.1)"]
+        LicensorEmail:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Email 1 (ref2019.1)", "Licensor Email 2 (ref2019.1)"]
+        LicensorExtendedAddress:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Ext Addr 1 (ref2019.1)", "Licensor Ext Addr 2 (ref2019.1)"]
+        LicensorID:
+          type: array
+          items:
+            type: string
+          example: ["Licensor ID 1 (ref2019.1)", "Licensor ID 2 (ref2019.1)"]
+        LicensorName:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Name 1 (ref2019.1)", "Licensor Name 2 (ref2019.1)"]
+        LicensorPostalCode:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Postcode 1 (ref2019.1)", "Licensor Postcode 2 (ref2019.1)"]
+        LicensorRegion:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Region 1 (ref2019.1)", "Licensor Region 2 (ref2019.1)"]
+        LicensorStreetAddress:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Street Addr 1 (ref2019.1)", "Licensor Street Addr 2 (ref2019.1)"]
+        LicensorTelephone1:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Phone1 1 (ref2019.1)", "Licensor Phone1 2 (ref2019.1)"]
+        LicensorTelephone2:
+          type: array
+          items:
+            type: string
+          example: ["Licensor Phone2 1 (ref2019.1)", "Licensor Phone2 2 (ref2019.1)"]
+        LicensorURL:
+          type: array
+          items:
+            type: string
+          example: ["Licensor URL 1 (ref2019.1)", "Licensor URL 2 (ref2019.1)"]
+        ModelReleaseID:
+          type: array
+          items:
+            type: string
+          example: ["Model Release ID 1 (ref2019.1)", "Model Release ID 2 (ref2019.1)"]
+        PropertyReleaseID:
+          type: array
+          items:
+            type: string
+          example: ["Property Release ID 1 (ref2019.1)", "Property Release ID 2 (ref2019.1)"]
+        Rating:
+          type: integer
+          example: 1
+        UsageTerms:
+          type: string
+          example: "Rights Usage Terms (ref2019.1)"
+        WebStatement:
+          type: string
+          example: "http://www.WebStatementOfRights.org/2019.1"
+        DateTimeCreated:
+          type: string
+          format: date-time
+          example: "2019-10-16T00:00:00.000Z"
+        Caption:
+          type: string
+          example: "The description aka caption (ref2019.1)"
+        Writer:
+          type: string
+          example: "Description Writer (ref2019.1)"
     Metadata:
       type: object
       properties:
@@ -4267,23 +5014,526 @@ components:
               help:
                 type: string
                 example: For support kindly contact us at support@imagekit.io.
-  examples: {}
+  examples:
+    UploadResponseWithEmbeddedMetadata:
+      fileId: 6673f88237b244ef54d60180
+      name: test-image.jpg
+      size: 117079
+      versionInfo:
+        id: 6673f88237b244ef54d60180
+        name: Version 1
+      filePath: "/test-image.jpg"
+      url: https://ik.imagekit.io/demo/test-image.jpg
+      fileType: image
+      height: 500
+      width: 1000
+      orientation: 1
+      thumbnailUrl: https://ik.imagekit.io/demo/tr:n-ik_ml_thumbnail/test-image.jpg
+      AITags: null
+      metadata:
+        height: 500
+        width: 1000
+        size: 117079
+        format: jpg
+        hasColorProfile: false
+        quality: 0
+        density: 72
+        hasTransparency: false
+        exif:
+          image:
+            ImageDescription: The description aka caption (ref2019.1)
+            Orientation: 1
+            XResolution: 72
+            YResolution: 72
+            ResolutionUnit: 2
+            Artist: Creator1 (ref2019.1)
+            YCbCrPositioning: 1
+            Copyright: Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)
+            ExifOffset: 260
+          thumbnail: {}
+          exif:
+            ExifVersion: '0232'
+            DateTimeOriginal: 2019:10:16 19:01:03
+            ComponentsConfiguration: "\x01\x02\x03\0"
+            FlashpixVersion: '0100'
+            ColorSpace: 65535
+            ExifImageWidth: 1000
+            ExifImageHeight: 500
+          gps: {}
+          interoperability: {}
+          makernote: {}
+        pHash: 17949d3d3573ebca
+      embeddedMetadata:
+        Orientation: Horizontal (normal)
+        ExifVersion: '0232'
+        ImageDescription: The description aka caption (ref2019.1)
+        XResolution: 72
+        YResolution: 72
+        ResolutionUnit: inches
+        Artist: Creator1 (ref2019.1)
+        Copyright: Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)
+        DateTimeOriginal: '2019-10-16T19:01:03.000Z'
+        OffsetTimeOriginal: "+00:00"
+        ComponentsConfiguration: Y,Cb,Cr,-
+        FlashpixVersion: '0100'
+        ColorSpace: Uncalibrated
+        ObjectAttributeReference: A Genre (ref2019.1)
+        ObjectName: The Title (ref2019.1)
+        SubjectReference:
+        - IPTC:1ref2019.1
+        - IPTC:2ref2019.1
+        - IPTC:3ref2019.1
+        Keywords:
+        - Keyword1ref2019.1
+        - Keyword2ref2019.1
+        - Keyword3ref2019.1
+        SpecialInstructions: An Instruction (ref2019.1)
+        TimeCreated: 19:01:03+00:00
+        Byline: Creator1 (ref2019.1)
+        BylineTitle: Creator's Job Title  (ref2019.1)
+        Sublocation: Sublocation (Core) (ref2019.1)
+        ProvinceState: Province/State(Core)(ref2019.1)
+        CountryPrimaryLocationCode: R19
+        CountryPrimaryLocationName: Country (Core) (ref2019.1)
+        OriginalTransmissionReference: Job Id (ref2019.1)
+        CopyrightNotice: Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)
+        CaptionAbstract: The description aka caption (ref2019.1)
+        WriterEditor: Description Writer (ref2019.1)
+        ApplicationRecordVersion: 4
+        CountryCode: R19
+        CreatorCity: 'Creator''s CI: City (ref2019.1)'
+        CreatorCountry: 'Creator''s CI: Country (ref2019.1)'
+        CreatorAddress: 'Creator''s CI: Address, line 1 (ref2019.1)'
+        CreatorPostalCode: 'Creator''s CI: Postcode (ref2019.1)'
+        CreatorRegion: 'Creator''s CI: State/Province (ref2019.1)'
+        CreatorWorkEmail: 'Creator''s CI: Email@1, Email@2 (ref2019.1)'
+        CreatorWorkTelephone: 'Creator''s CI: Phone # 1, Phone # 2 (ref2019.1)'
+        CreatorWorkURL: http://www.Creators.CI/WebAddress/ref2019.1
+        IntellectualGenre: A Genre (ref2019.1)
+        Location: Sublocation (Core) (ref2019.1)
+        Scene:
+        - IPTC-Scene-Code1 (ref2019.1)
+        - IPTC-Scene-Code2 (ref2019.1)
+        SubjectCode:
+        - IPTC:1ref2019.1
+        - IPTC:2ref2019.1
+        - IPTC:3ref2019.1
+        AboutCvTermCvId: http://example.com/cv/about/ref2019.1
+        AboutCvTermId: http://example.com/cv/about/ref2019.1/code987
+        AboutCvTermName: CV-Term Name 1 (ref2019.1)
+        AboutCvTermRefinedAbout: http://example.com/cv/refinements2/ref2019.1/codeX145
+        AdditionalModelInformation: Additional Model Info (ref2019.1)
+        ArtworkCircaDateCreated: 'AO Circa Date: between 1550 and 1600 (ref2019.1)'
+        ArtworkContentDescription: AO Content Description 1 (ref2019.1)
+        ArtworkContributionDescription: AO Contribution Description 1 (ref2019.1)
+        ArtworkCopyrightNotice: AO Copyright Notice 1 (ref2019.1)
+        ArtworkCreator:
+        - AO Creator Name 1a (ref2019.1)
+        - AO Creator Name 1b (ref2019.1)
+        ArtworkCreatorID:
+        - AO Creator Id 1a (ref2019.1)
+        - AO Creator Id 1b (ref2019.1)
+        ArtworkCopyrightOwnerID: AO Current Copyright Owner ID 1 (ref2019.1)
+        ArtworkCopyrightOwnerName: AO Current Copyright Owner Name 1 (ref2019.1)
+        ArtworkLicensorID: AO Current Licensor ID 1 (ref2019.1)
+        ArtworkLicensorName: AO Current Licensor Name 1 (ref2019.1)
+        ArtworkDateCreated: '1919-10-16T19:01:00.000Z'
+        ArtworkPhysicalDescription: AO Physical Description 1 (ref2019.1)
+        ArtworkSource: AO Source 1 (ref2019.1)
+        ArtworkSourceInventoryNo: AO Source Inventory No 1 (ref2019.1)
+        ArtworkSourceInvURL: AO Source Inventory URL (ref2019.1)
+        ArtworkStylePeriod:
+        - AO Style Baroque (ref2019.1)
+        - AO Style Italian Baroque (ref2019.1)
+        ArtworkTitle: AO Title 1 (ref2019.1)
+        DigitalImageGUID: http://example.com/imageGUIDs/TestGUID12345/ref2019.1
+        DigitalSourceType: http://cv.iptc.org/newscodes/digitalsourcetype/softwareImage
+        EmbeddedEncodedRightsExpr: The Encoded Rights Expression (ref2019.1)
+        EmbeddedEncodedRightsExprType: IANA Media Type of ERE (ref2019.1)
+        EmbeddedEncodedRightsExprLangID: http://example.org/RELids/id4711/ref2019.1
+        Event: An Event (ref2019.1)
+        GenreCvId: http://example.com/cv/genre/ref2019.1
+        GenreCvTermId: http://example.com/cv/genre/ref2019.1/code1369
+        GenreCvTermName: Genre CV-Term Name 1 (ref2019.1)
+        GenreCvTermRefinedAbout: http://example.com/cv/genrerefinements2/ref2019.1/codeY864
+        ImageRegionName:
+        - Listener 1
+        - Listener 2
+        - Speaker 1
+        ImageRegionOrganisationInImageName:
+        - Organisation name no 1 in region persltr2 (ref2019.1)
+        - Organisation name no 1 in region persltr2 (ref2019.1)
+        - Organisation name no 1 in region persltr3 (ref2019.1)
+        ImageRegionPersonInImage:
+        - Person name no 1 in region persltr2 (ref2019.1)
+        - Person name no 1 in region persltr3 (ref2019.1)
+        - Person name no 1 in region persltr1 (ref2019.1)
+        ImageRegionBoundaryH:
+        - 0.385
+        ImageRegionBoundaryShape:
+        - rectangle
+        - circle
+        - polygon
+        ImageRegionBoundaryUnit:
+        - relative
+        - relative
+        - relative
+        ImageRegionBoundaryW:
+        - 0.127
+        ImageRegionBoundaryX:
+        - 0.31
+        - 0.59
+        ImageRegionBoundaryY:
+        - 0.18
+        - 0.426
+        ImageRegionCtypeName:
+        - Region Boundary Content Type Name (ref2019.1)
+        - Region Boundary Content Type Name (ref2019.1)
+        - Region Boundary Content Type Name (ref2019.1)
+        ImageRegionCtypeIdentifier:
+        - https://example.org/rctype/type2019.1a
+        - https://example.org/rctype/type2019.1b
+        - https://example.org/rctype/type2019.1a
+        - https://example.org/rctype/type2019.1b
+        - https://example.org/rctype/type2019.1a
+        - https://example.org/rctype/type2019.1b
+        ImageRegionID:
+        - persltr2
+        - persltr3
+        - persltr1
+        ImageRegionRoleName:
+        - Region Boundary Content Role Name (ref2019.1)
+        - Region Boundary Content Role Name (ref2019.1)
+        - Region Boundary Content Role Name (ref2019.1)
+        ImageRegionRoleIdentifier:
+        - https://example.org/rrole/role2019.1a
+        - https://example.org/rrole/role2019.1b
+        - https://example.org/rrole/role2019.1a
+        - https://example.org/rrole/role2019.1b
+        - https://example.org/rrole/role2019.1a
+        - https://example.org/rrole/role2019.1b
+        ImageRegionBoundaryRx:
+        - 0.068
+        ImageRegionBoundaryVerticesX:
+        - 0.05
+        - 0.148
+        - 0.375
+        ImageRegionBoundaryVerticesY:
+        - 0.713
+        - 0.041
+        - 0.863
+        LinkedEncodedRightsExpr: http://example.org/linkedrightsexpression/id986/ref2019.1
+        LinkedEncodedRightsExprType: IANA Media Type of ERE (ref2019.1)
+        LinkedEncodedRightsExprLangID: http://example.org/RELids/id4712/ref2019.1
+        LocationCreatedCity: City (Location created1) (ref2019.1)
+        LocationCreatedCountryCode: R17
+        LocationCreatedCountryName: CountryName (Location created1) (ref2019.1)
+        LocationCreatedLocationId: Location Id (Location created1) (ref2019.1)
+        LocationCreatedLocationName: Location Name (Location created1) (ref2019.1)
+        LocationCreatedProvinceState: Province/State (Location created1) (ref2019.1)
+        LocationCreatedSublocation: Sublocation (Location created1) (ref2019.1)
+        LocationCreatedWorldRegion: Worldregion (Location created1) (ref2019.1)
+        LocationCreatedGPSAltitude: 480 m
+        LocationCreatedGPSLatitude: 48,16.5N
+        LocationCreatedGPSLongitude: 16,20.28E
+        LocationShownCity:
+        - City (Location shown1) (ref2019.1)
+        - City (Location shown2) (ref2019.1)
+        LocationShownCountryCode:
+        - R17
+        - R17
+        LocationShownCountryName:
+        - CountryName (Location shown1) (ref2019.1)
+        - CountryName (Location shown2) (ref2019.1)
+        LocationShownLocationId:
+        - Location Id 1a(Location shown1) (ref2019.1)
+        - Location Id 1b(Location shown1) (ref2019.1)
+        - Location Id 2a(Location shown2) (ref2019.1)
+        - Location Id 2b(Location shown2) (ref2019.1)
+        LocationShownLocationName:
+        - Location Name (Location shown1) (ref2019.1)
+        - Location Name (Location shown2) (ref2019.1)
+        LocationShownProvinceState:
+        - Province/State (Location shown1) (ref2019.1)
+        - Province/State (Location shown2) (ref2019.1)
+        LocationShownSublocation:
+        - Sublocation (Location shown1) (ref2019.1)
+        - Sublocation (Location shown2) (ref2019.1)
+        LocationShownWorldRegion:
+        - Worldregion (Location shown1) (ref2019.1)
+        - Worldregion (Location shown2) (ref2019.1)
+        LocationShownGPSAltitude:
+        - 140 m
+        - 120 m
+        LocationShownGPSLatitude:
+        - 48,8.82N
+        - 47,57.12N
+        LocationShownGPSLongitude:
+        - 17,5.88E
+        - 16,49.8E
+        MaxAvailHeight: 20
+        MaxAvailWidth: 19
+        ModelAge:
+        - 25
+        - 27
+        - 30
+        OrganisationInImageCode:
+        - Organisation Code 1 (ref2019.1)
+        - Organisation Code 2 (ref2019.1)
+        - Organisation Code 3 (ref2019.1)
+        OrganisationInImageName:
+        - Organisation Name 1 (ref2019.1)
+        - Organisation Name 2 (ref2019.1)
+        - Organisation Name 3 (ref2019.1)
+        PersonInImage:
+        - Person Shown 1 (ref2019.1)
+        - Person Shown 2 (ref2019.1)
+        PersonInImageCvTermCvId:
+        - http://example.com/cv/test99/ref2019.1
+        PersonInImageCvTermId:
+        - http://example.com/cv/test99/code987/ref2019.1
+        PersonInImageCvTermName:
+        - Person Characteristic Name 1 (ref2019.1)
+        PersonInImageCvTermRefinedAbout:
+        - http://example.com/cv/refinements987/codeY765/ref2019.1
+        PersonInImageDescription:
+        - Person Description 1 (ref2019.1)
+        PersonInImageId:
+        - http://wikidata.org/item/Q123456789/ref2019.1
+        - http://freebase.com/m/987654321/ref2019.1
+        PersonInImageName:
+        - Person Name 1 (ref2019.1)
+        ProductInImageDescription:
+        - Product Description 1 (ref2019.1)
+        ProductInImageGTIN:
+        - 123456782019.1
+        ProductInImageName:
+        - Product Name 1 (ref2019.1)
+        RegistryEntryRole:
+        - Registry Entry Role ID 1 (ref2019.1)
+        - Registry Entry Role ID 2 (ref2019.1)
+        RegistryItemID:
+        - Registry Image ID 1 (ref2019.1)
+        - Registry Image ID 2 (ref2019.1)
+        RegistryOrganisationID:
+        - Registry Organisation ID 1 (ref2019.1)
+        - Registry Organisation ID 2 (ref2019.1)
+        Creator: Creator1 (ref2019.1)
+        Description: The description aka caption (ref2019.1)
+        Rights: Copyright (Notice) 2019.1 IPTC - www.iptc.org  (ref2019.1)
+        Subject:
+        - Keyword1ref2019.1
+        - Keyword2ref2019.1
+        - Keyword3ref2019.1
+        Title: The Title (ref2019.1)
+        AuthorsPosition: Creator&#39;s Job Title  (ref2019.1)
+        CaptionWriter: Description Writer (ref2019.1)
+        City: City (Core) (ref2019.1)
+        Country: Country (Core) (ref2019.1)
+        Credit: Credit Line (ref2019.1)
+        DateCreated: '2019-10-16T00:00:00.000Z'
+        Headline: The Headline (ref2019.1)
+        Instructions: An Instruction (ref2019.1)
+        Source: Source (ref2019.1)
+        State: Province/State(Core)(ref2019.1)
+        TransmissionReference: Job Id (ref2019.1)
+        CopyrightOwnerID:
+        - Copyright Owner Id 1 (ref2019.1)
+        - Copyright Owner Id 2 (ref2019.1)
+        CopyrightOwnerName:
+        - Copyright Owner Name 1 (ref2019.1)
+        - Copyright Owner Name 2 (ref2019.1)
+        ImageCreatorID: Image Creator Id 1 (ref2019.1)
+        ImageCreatorName: Image Creator Name 1 (ref2019.1)
+        ImageCreatorImageID: Image Creator Image ID (ref2019.1)
+        ImageSupplierID: Image Supplier Id (ref2019.1)
+        ImageSupplierName: Image Supplier Name (ref2019.1)
+        ImageSupplierImageID: Image Supplier Image ID (ref2019.1)
+        LicensorCity:
+        - Licensor City 1 (ref2019.1)
+        - Licensor City 2 (ref2019.1)
+        LicensorCountry:
+        - Licensor Country 1 (ref2019.1)
+        - Licensor Country 2 (ref2019.1)
+        LicensorEmail:
+        - Licensor Email 1 (ref2019.1)
+        - Licensor Email 2 (ref2019.1)
+        LicensorExtendedAddress:
+        - Licensor Ext Addr 1 (ref2019.1)
+        - Licensor Ext Addr 2 (ref2019.1)
+        LicensorID:
+        - Licensor ID 1 (ref2019.1)
+        - Licensor ID 2 (ref2019.1)
+        LicensorName:
+        - Licensor Name 1 (ref2019.1)
+        - Licensor Name 2 (ref2019.1)
+        LicensorPostalCode:
+        - Licensor Postcode 1 (ref2019.1)
+        - Licensor Postcode 2 (ref2019.1)
+        LicensorRegion:
+        - Licensor Region 1 (ref2019.1)
+        - Licensor Region 2 (ref2019.1)
+        LicensorStreetAddress:
+        - Licensor Street Addr 1 (ref2019.1)
+        - Licensor Street Addr 2 (ref2019.1)
+        LicensorTelephone1:
+        - Licensor Phone1 1 (ref2019.1)
+        - Licensor Phone1 2 (ref2019.1)
+        LicensorTelephone2:
+        - Licensor Phone2 1 (ref2019.1)
+        - Licensor Phone2 2 (ref2019.1)
+        LicensorURL:
+        - Licensor URL 1 (ref2019.1)
+        - Licensor URL 2 (ref2019.1)
+        ModelReleaseID:
+        - Model Release ID 1 (ref2019.1)
+        - Model Release ID 2 (ref2019.1)
+        PropertyReleaseID:
+        - Property Release ID 1 (ref2019.1)
+        - Property Release ID 2 (ref2019.1)
+        Rating: 1
+        UsageTerms: Rights Usage Terms (ref2019.1)
+        WebStatement: http://www.WebStatementOfRights.org/2019.1
+        DateTimeCreated: '2019-10-16T00:00:00.000Z'
+        Caption: The description aka caption (ref2019.1)
+        Writer: Description Writer (ref2019.1)
+    UploadResponseImage:
+      fileId: 6673f88237b244ef54d60180
+      name: test-image.jpg
+      size: 117079
+      versionInfo:
+        id: 6673f88237b244ef54d60180
+        name: Version 1
+      filePath: "/test-image.jpg"
+      url: https://ik.imagekit.io/demo/test-image.jpg
+      fileType: image
+      height: 500
+      width: 1000
+      orientation: 1
+      thumbnailUrl: https://ik.imagekit.io/demo/tr:n-ik_ml_thumbnail/test-image.jpg
+    UploadResonseVideo:
+      fileId: 6673f99b37b244ef54d98f11
+      name: test-video.mp4
+      size: 1378305
+      versionInfo:
+        id: 6673f99b37b244ef54d98f11
+        name: Version 1
+      filePath: "/test-video.mp4"
+      url: https://ik.imagekit.io/demo/test-video.mp4
+      height: 720
+      width: 720
+      bitRate: 1453966
+      duration: 7
+      audioCodec: aac
+      videoCodec: h264
+      fileType: non-image
+      metadata:
+        height: 720
+        width: 720
+        bitRate: 1453966
+        duration: 7
+        audioCodec: aac
+        videoCodec: h264
+        size: 1378305
+    ImageMetadata:
+      height: 68
+      width: 100
+      size: 7749
+      format: jpg
+      hasColorProfile: true
+      quality: 0
+      density: 72
+      hasTransparency: false
+      pHash: f06830ca9f1e3e90
+      exif:
+        image:
+          Make: Canon
+          Model: Canon EOS 40D
+          Orientation: 1
+          XResolution: 72
+          YResolution: 72
+          ResolutionUnit: 2
+          Software: GIMP 2.4.5
+          ModifyDate: 2008:07:31 10:38:11
+          YCbCrPositioning: 2
+          ExifOffset: 214
+          GPSInfo: 978
+        thumbnail:
+          Compression: 6
+          XResolution: 72
+          YResolution: 72
+          ResolutionUnit: 2
+          ThumbnailOffset: 1090
+          ThumbnailLength: 1378
+        exif:
+          ExposureTime: 0.00625
+          FNumber: 7.1
+          ExposureProgram: 1
+          ISO: 100
+          ExifVersion: "0221"
+          DateTimeOriginal: 2008:05:30 15:56:01
+          CreateDate: 2008:05:30 15:56:01
+          ShutterSpeedValue: 7.375
+          ApertureValue: 5.625
+          ExposureCompensation: 0
+          MeteringMode: 5
+          Flash: 9
+          FocalLength: 135
+          SubSecTime: "00"
+          SubSecTimeOriginal: "00"
+          SubSecTimeDigitized: "00"
+          FlashpixVersion: "0100"
+          ColorSpace: 1
+          ExifImageWidth: 100
+          ExifImageHeight: 68
+          InteropOffset: 948
+          FocalPlaneXResolution: 4438.356164383562
+          FocalPlaneYResolution: 4445.969125214408
+          FocalPlaneResolutionUnit: 2
+          CustomRendered: 0
+          ExposureMode: 1
+          WhiteBalance: 0
+          SceneCaptureType: 0
+        gps:
+          GPSVersionID:
+            - 2
+            - 2
+            - 0
+            - 0
+        interoperability:
+          InteropIndex: R98
+          InteropVersion: "0100"
+        makernote: {}
+    VideoMetadata:
+      height: 720
+      width: 1280
+      bitRate: 546524
+      duration: 70
+      audioCodec: aac
+      videoCodec: h264
+      size: 23490
   securitySchemes:
     basicAuth:
       description: >-
-        Basic HTTP authentication.
+        ImageKit API uses API keys to authenticate requests. You can view and manage your API keys in [the dashboard](https://imagekit.io/dashboard/developer/api-keys).
 
         
-        Provide base64 encoded value of the string `your_private_api_key:`.
-        
-        
-        Notice the colon (:) after the private key. It is required otherwise, authentication will fail. The format is `username:password`. `username` is your private key and `password` is an empty string.
+        Private keys have the prefix `private_` and the public keys have the prefix `public_`. Alternatively, you can use [restricted API keys](/api-keys#restricted-api-keys) for granular permissions.
 
         
-        If you encode `your_private_api_key:` using base64, you will get `eW91cl9wcml2YXRlX2FwaV9rZXk6`.
+        Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.
 
         
-        `Authorization: Basic eW91cl9wcml2YXRlX2FwaV9rZXk6`
+        Authentication to the API is performed via HTTP Basic Auth. Provide your API key as the basic auth username value. You do not need to provide a password.
+
+        
+        Send your HTTP requests with the `Authorization` header that contains the word Basic word followed by a space and a base64-encoded string username:password. 
+        
+        
+        For example, if your private key is `private_rGAPQJbhBx`, encode `private_rGAPQJbhBx:` using base64. The encoded value will be `cHJpdmF0ZV9yR0FQUUpiaEJ4Og==`. Then send `Authorization: Basic cHJpdmF0ZV9yR0FQUUpiaEJ4Og==`.
+
+
+        All API requests must be made over HTTPS. Calls made over plain HTTP will fail. API requests without authentication will also fail.
       scheme: basic
       type: http
 security:
