@@ -12,6 +12,179 @@ info:
 servers:
   - url: https://api.imagekit.io
 paths:
+  /api/v1/files/upload:
+    servers:
+      - url: https://upload.imagekit.io
+    post:
+      tags:
+        - Upload File
+      operationId: upload-file
+      summary: Upload file V1
+      description: |
+        ImageKit.io allows you to upload files directly from both the server and client sides. For server-side uploads, private API key authentication is used. For client-side uploads, generate a one-time `token`, `signature`, and `expiration` from your secure backend using private API. [Learn more](/docs/api-reference/upload-file/upload-file#how-to-implement-client-side-file-upload) about how to implement client-side file upload.
+        
+        The [V2 API](/docs/api-reference/upload-file/upload-file-v2) enhances security by verifying the entire payload using JWT.
+
+        **File size limit** \
+        On the free plan, the maximum upload file sizes are 20MB for images, audio, and raw files and 100MB for videos. On the paid plan, these limits increase to 40MB for images, audio, and raw files and 2GB for videos. These limits can be further increased with higher-tier plans.
+
+        **Version limit** \
+        A file can have a maximum of 100 versions.
+
+        **Demo applications**
+
+        - A full-fledged [upload widget using Uppy](https://github.com/imagekit-samples/uppy-uploader), supporting file selections from local storage, URL, Dropbox, Google Drive, Instagram, and more.
+        - [Quick start guides](/docs/quick-start-guides) for various frameworks and technologies.
+      requestBody:
+       content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/request/FileUploadV1'
+      responses:
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "200":
+          description: File uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/Upload"
+              examples:
+                Simple image file:
+                  value:
+                    $ref: "#/components/examples/UploadResponseImage"
+                Simple video file:
+                  value:
+                    $ref: "#/components/examples/UploadResonseVideo"
+                Image with EmbeddedMetadata:
+                  value:
+                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
+        "202":
+          description: File accepted for upload. Pre transformation for video is being processed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The pre-transformation has been queued successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                    - Your request is missing file parameter.
+                    - Your request contains both signature and basic auth parameter. Use only one method, you might be exposing your private API key.
+                    - Your request contains invalid expire parameter. Expire parameter should be a Unix time in less than 1 hour into the future.
+                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
+                    - Your request contains invalid file parameter. The file size exceeds limits.
+                    - Upload Limit Exceeded.
+                    - Extensions quota exceeded.
+                    - The file could not be uploaded because the transformation field is invalid.
+                    - The file could not be uploaded because transformations are supported only for image and video files.
+                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
+                    - You have sent too many requests to update the file recently. Please try again later.
+                    - Your request contains invalid syntax for the checks parameter.
+                    - Your request failed 'checks' validation.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+  /api/v2/files/upload:
+    servers:
+      - url: https://upload.imagekit.io
+    post:
+      tags:
+        - Upload File
+      operationId: upload-file-v2
+      summary: Upload file V2
+      description: |
+        The V2 API enhances security by verifying the entire payload using JWT. This API is in beta.
+
+        ImageKit.io allows you to upload files directly from both the server and client sides. For server-side uploads, private API key authentication is used. For client-side uploads, generate a one-time `token` from your secure backend using private API. [Learn more](/docs/api-reference/upload-file/upload-file-v2#how-to-implement-secure-client-side-file-upload) about how to implement secure client-side file upload.
+
+        **File size limit** \
+        On the free plan, the maximum upload file sizes are 20MB for images, audio, and raw files, and 100MB for videos. On the paid plan, these limits increase to 40MB for images, audio, and raw files, and 2GB for videos. These limits can be further increased with higher-tier plans.
+
+        **Version limit** \
+        A file can have a maximum of 100 versions.
+
+        **Demo applications**
+        
+        - A full-fledged [upload widget using Uppy](https://github.com/imagekit-samples/uppy-uploader), supporting file selections from local storage, URL, Dropbox, Google Drive, Instagram, and more.
+        - [Quick start guides](/docs/quick-start-guides) for various frameworks and technologies.
+      requestBody:
+       content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/request/FileUploadV2'
+      responses:
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "200":
+          description: File uploaded successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/Upload"
+              examples:
+                Simple image file:
+                  value:
+                    $ref: "#/components/examples/UploadResponseImage"
+                Simple video file:
+                  value:
+                    $ref: "#/components/examples/UploadResonseVideo"
+                Image with EmbeddedMetadata:
+                  value:
+                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
+        "202":
+          description: File accepted for upload. Pre transformation for video is being processed.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: The pre-transformation has been queued successfully.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                    - Your request is missing file parameter.
+                    - Your request contains both token and basic auth parameter. Use only one method, you might be exposing your private API key.
+                    - Your request contains invalid payload. It does not match with the payload used to generate token.
+                    - Your request is missing token parameter.
+                    - Your request contains expired token.
+                    - Your request has invalid token.
+                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
+                    - Your request contains invalid file parameter. The file size exceeds limits.
+                    - Upload Limit Exceeded.
+                    - Extensions quota exceeded.
+                    - The file could not be uploaded because the transformation field is invalid.
+                    - The file could not be uploaded because transformations are supported only for image and video files.
+                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
+                    - You have sent too many requests to update the file recently. Please try again later.
+                    - Your request contains invalid syntax for the checks parameter.
+                    - Your request failed 'checks' validation.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/customMetadataFields:
     post:
       summary: Create new field
@@ -44,7 +217,7 @@ paths:
                       type: string
                       enum:
                         - Text
-                        - TextArea
+                        - Textarea
                         - Number
                         - Date
                         - Boolean
@@ -239,9 +412,10 @@ paths:
                   id: 598821f949c0a938d57563bd
                   name: Version 1
                 isPrivateFile: false
+                isPublished: true
                 customCoordinates: null
-                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg
-                thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg
+                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313
+                thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                 fileType: image
                 mime: image/jpeg
                 width: 100
@@ -251,6 +425,7 @@ paths:
                 customMetadata:
                   brand: Nike
                   color: red
+                description: "A product description"
                 createdAt: "2019-08-24T06:14:41.313Z"
                 updatedAt: "2019-08-24T06:14:41.313Z"
         "404":
@@ -286,7 +461,7 @@ paths:
       operationId: update-file-details
       summary: Update file details
       description: |
-        This API updates the details or attributes of the current version of the file. You can update `tags`, `customCoordinates`, `customMetadata`, remove existing `AITags` and apply extensions using this API.
+        This API updates the details or attributes of the current version of the file. You can update `tags`, `customCoordinates`, `customMetadata`, publication status, remove existing `AITags` and apply extensions using this API.
       parameters:
         - description: |
             The unique `fileId` of the uploaded file. `fileId` is returned in list and search assets API and upload API.
@@ -299,54 +474,79 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                removeAITags:
-                  oneOf:
-                    - type: array
+              oneOf: 
+                - title: Update file details
+                  type: object
+                  properties:
+                    removeAITags:
+                      oneOf:
+                        - type: array
+                          items:
+                            type: string
+                        - type: string
+                          enum: ["all"]
+                      description: |
+                        An array of AITags associated with the file that you want to remove, e.g. `["car", "vehicle", "motorsports"]`. 
+                        
+                        If you want to remove all AITags associated with the file, send a string - "all".
+
+                        Note: The remove operation for `AITags` executes before any of the `extensions` are processed.
+                    webhookUrl:
+                      type: string
+                      description: |
+                        The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/docs/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
+                    extensions:
+                      type: array
+                      items:
+                        anyOf:
+                          - $ref: '#/components/request/RemovedotBGExtension'
+                          - $ref: '#/components/request/AutoTaggingExtension'
+                          - $ref: '#/components/request/AutoDescriptionExtension'
+                      description: >
+                        Array of extensions to be applied to the asset. Each extension can be configured with specific parameters based on the extension type.
+                    tags:
+                      type: array
                       items:
                         type: string
-                    - type: string
-                      enum: ["all"]
-                  description: |
-                    An array of AITags associated with the file that you want to remove, e.g. `["car", "vehicle", "motorsports"]`. 
-                    
-                    If you want to remove all AITags associated with the file, send a string - "all".
-
-                    Note: The remove operation for `AITags` executes before any of the `extensions` are processed.
-                webhookUrl:
-                  type: string
-                  description: |
-                    The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](#webhook-payload-structure) about the webhook payload structure.
-                extensions:
-                  type: array
-                  items:
-                    anyOf:
-                      - $ref: '#/components/request/RemovedotBGExtension'
-                      - $ref: '#/components/request/AutoTaggingExtension'
-                  description: >
-                    Array of extensions to be applied to the asset. Each extension can be configured with specific parameters based on the extension type.
-                tags:
-                  type: array
-                  items:
-                    type: string
-                  description: >
-                    An array of tags associated with the file, such as `["tag1", "tag2"]`. Send `null` to unset all tags associated with the file.
-                  nullable: true
-                  example: ["tag1", "tag2"]
-                  x-nullable-description: >
-                    Send `null` to unset all tags associated with the file.
-                customCoordinates:
-                  type: string
-                  nullable: true
-                  description: |
-                    Define an important area in the image in the format `x,y,width,height` e.g. `10,10,100,100`. Send `null` to unset this value.
-                  x-nullable-description: >
-                    Send `null` to unset this value.
-                customMetadata:
+                      description: >
+                        An array of tags associated with the file, such as `["tag1", "tag2"]`. Send `null` to unset all tags associated with the file.
+                      nullable: true
+                      example: ["tag1", "tag2"]
+                      x-nullable-description: >
+                        Send `null` to unset all tags associated with the file.
+                    customCoordinates:
+                      type: string
+                      nullable: true
+                      description: |
+                        Define an important area in the image in the format `x,y,width,height` e.g. `10,10,100,100`. Send `null` to unset this value.
+                      x-nullable-description: >
+                        Send `null` to unset this value.
+                    customMetadata:
+                      type: object
+                      description: |
+                        A key-value data to be associated with the asset. To unset a key, send `null` value for that key. Before setting any custom metadata on an asset you have to create the field using custom metadata fields API.
+                    description:
+                      type: string
+                      description: |
+                        Optional text to describe the contents of the file.
+                - title: Change publication status
                   type: object
-                  description: |
-                    A key-value data to be associated with the asset. To unset a key, send `null` value for that key. Before setting any custom metadata on an asset you have to create the field using custom metadata fields API.
+                  properties:
+                    publish:
+                      type: object
+                      required: ["isPublished"]
+                      description: |
+                        Configure the publication status of a file and its versions.
+                      properties:
+                        isPublished:
+                          type: boolean
+                          description: |
+                            Set to `true` to publish the file. Set to `false` to unpublish the file.
+                        includeFileVersions:
+                          type: boolean
+                          description: |
+                            Set to `true` to publish/unpublish all versions of the file. Set to `false` to publish/unpublish only the current version of the file.
+                        
             example:
               removeAITags: ["car", "vehicle", "motorsports"]
               webhookUrl: https://webhook.site/0d6b6c7a-8e5a-4b3a-8b7c-0d6b6c7a8e5a
@@ -363,6 +563,7 @@ paths:
                     "minConfidence": 80,
                     "maxTags": 10,
                   },
+                  { "name": "ai-auto-description" },
                 ]
               tags: ["tag1", "tag2"]
               customCoordinates: "10,10,100,100"
@@ -395,11 +596,15 @@ paths:
                           remove-bg:
                             type: string
                             enum: ["success", "pending", "failed"]
+                          ai-auto-description:
+                            type: string
+                            enum: ["success", "pending", "failed"]
               example:
                 fileId: 598821f949c0a938d57563bd
                 type: file
                 name: file1.jpg
                 filePath: /images/products/file.jpg
+                isPublished: true
                 tags:
                   - t-shirt
                   - round-neck
@@ -416,8 +621,8 @@ paths:
                   name: Version 1
                 isPrivateFile: false
                 customCoordinates: null
-                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg
-                thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg
+                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313
+                thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                 fileType: image
                 mime: image/jpeg
                 width: 100
@@ -705,6 +910,10 @@ paths:
           required: false
           description: |
             Folder path if you want to limit the search within a specific folder. For example, `/sales-banner/` will only search in folder sales-banner.
+            
+            Note : If your use case involves searching within a folder as well as its subfolders, you can use `path` parameter in `searchQuery` with appropriate operator.
+            Checkout [Supported parameters](/docs/api-reference/digital-asset-management-dam/list-and-search-assets#supported-parameters) for more information.
+
           schema:
             type: string
         - in: query
@@ -719,7 +928,7 @@ paths:
             2. `type`
             3. `name`
 
-            [Learn more](#advanced-search-queries) from examples.
+            [Learn more](/docs/api-reference/digital-asset-management-dam/list-and-search-assets#advanced-search-queries) from examples.
           schema:
             type: string
         - in: query
@@ -773,7 +982,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/responses/FileDetails"
+                  oneOf:
+                  - $ref: "#/components/responses/FileDetails"
+                  - $ref: "#/components/responses/FolderDetails"
               example:
                 - fileId: 598821f949c0a938d57563bd
                   type: file
@@ -795,8 +1006,8 @@ paths:
                     name: Version 2
                   isPrivateFile: false
                   customCoordinates: null
-                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg
-                  thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg
+                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313
+                  thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                   fileType: image
                   mime: image/jpeg
                   width: 100
@@ -827,8 +1038,8 @@ paths:
                     name: Version 1
                   isPrivateFile: false
                   customCoordinates: null
-                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
-                  thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
+                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313
+                  thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                   fileType: image
                   mime: image/jpeg
                   width: 100
@@ -1234,11 +1445,13 @@ paths:
                 purgeCache:
                   type: boolean
                   description: |
-                    Option to purge cache for the old file URL.
+                    Option to purge cache for the old file and its versions' URLs.
 
-                    When set to true, it will internally issue a purge cache request on CDN to remove cached content on the old URL. E.g. if an old file was accessible at - `https://ik.imagekit.io/demo/old-filename.jpg`, a purge cache request will be issued to remove the CDN cache for this URL. This purge request is counted against your monthly purge quota. 
+                    When set to true, it will internally issue a purge cache request on CDN to remove cached content of old file and its versions. This purge request is counted against your monthly purge quota.
 
-                    Note: Cache will be purged only for the current version of file.
+                    Note: If the old file were accessible at `https://ik.imagekit.io/demo/old-filename.jpg`, a purge cache request would be issued against `https://ik.imagekit.io/demo/old-filename.jpg*` (with a wildcard at the end). It will remove the file and its versions' URLs and any transformations made using query parameters on this file or its versions. However, the cache for file transformations made using path parameters will persist. You can purge them using the purge API. For more details, refer to the purge API documentation.
+
+
 
                     Default value - `false`
                   example: true
@@ -1381,8 +1594,8 @@ paths:
                         name: Version 2
                       isPrivateFile: false
                       customCoordinates: null
-                      url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg
-                      thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg
+                      url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313
+                      thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                       fileType: image
                       mime: image/jpeg
                       width: 100
@@ -1413,8 +1626,8 @@ paths:
                         name: Version 1
                       isPrivateFile: false
                       customCoordinates: null
-                      url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
-                      thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
+                      url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313
+                      thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                       fileType: image
                       mime: image/jpeg
                       width: 100
@@ -1508,8 +1721,8 @@ paths:
                   name: Version 1
                 isPrivateFile: false
                 customCoordinates: null
-                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
-                thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4
+                url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313
+                thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?ik-obj-version=iAg8gxkqo_QUBwqNeQrJzuyce2XB7Gc4&updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                 fileType: image
                 mime: image/jpeg
                 width: 100
@@ -1674,8 +1887,8 @@ paths:
                     name: Version 2
                   isPrivateFile: false
                   customCoordinates: null
-                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg
-                  thumbnail: https://ik.imagekit.io/your_imagekit_id/tr:n-ik_ml_thumbnail/images/products/file.jpg
+                  url: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313
+                  thumbnail: https://ik.imagekit.io/your_imagekit_id/images/products/file.jpg?updatedAt=1566630881313&tr=n-ik_ml_thumbnail
                   fileType: image
                   mime: image/jpeg
                   width: 100
@@ -2299,6 +2512,21 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "423":
+          description: Locked resource - A bulk operation is currently running on the folder.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - A bulk job is running on given folder path, please try after sometime.
+                      - Destination folder path is already locked. Please try after sometime.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
   /v1/bulkJobs/moveFolder:
     post:
       tags:
@@ -2384,6 +2612,135 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
+        "423":
+          description: Locked resource - A bulk operation is currently running on the folder.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - A bulk job is running on given folder path, please try after sometime.
+                      - Destination folder path is already locked. Please try after sometime.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.    
+  /v1/bulkJobs/renameFolder:
+    post:
+      tags:
+        - Digital Asset Management (DAM)
+        - Managing folders
+      operationId: rename-folder
+      summary: Rename folder
+      description: |
+        This API allows you to rename an existing folder. The folder and all its nested assets and sub-folders will remain unchanged, but their paths will be updated to reflect the new folder name.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - folderPath
+                - newFolderName
+              properties:
+                folderPath:
+                  type: string
+                  description: |
+                    The full path to the folder you want to rename.
+                  example: /path/of/folder
+                newFolderName:
+                  type: string
+                  description: |
+                    The new name for the folder.
+
+                    All characters except alphabets and numbers (inclusive of unicode letters, marks, and numerals in other languages) and `-` will be replaced by an underscore i.e. `_`.
+                  example: new-folder-name
+                purgeCache:
+                  type: boolean
+                  description: |
+                    Option to purge cache for the old nested files and their versions' URLs.
+
+                    When set to true, it will internally issue a purge cache request on CDN to remove the cached content of the old nested files and their versions. There will only be one purge request for all the nested files, which will be counted against your monthly purge quota.
+
+                    Note: A purge cache request will be issued against `https://ik.imagekit.io/old/folder/path*` (with a wildcard at the end). This will remove all nested files, their versions' URLs, and any transformations made using query parameters on these files or their versions. However, the cache for file transformations made using path parameters will persist. You can purge them using the purge API. For more details, refer to the purge API documentation.
+
+                    Default value - `false`
+                  example: true
+      responses:
+        "202":
+          description: Job submitted successfully. A `jobId` will be returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    description: |
+                      Unique identifier of the bulk job. This can be used to check the status of the bulk job.
+        "400":
+          description: Bad request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples: 
+                      - folderPath cannot be root.
+                      - folderPath parameter is missing.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "403":
+          $ref: '#/components/responses/Forbidden'
+        "404":
+          description: Folder not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Source folder not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "409":
+          description: If a folder with newFileName already exist in the same location.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Folder with name newFolderName already exists at the same location.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "423":
+          description: Locked resource - A bulk operation is currently running on the folder.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - A bulk job is running on given folder path, please try after sometime.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429":
+          $ref: '#/components/responses/RateLimitExceeded'
   /v1/bulkJobs/{jobId}:
     get:
       tags:
@@ -2423,15 +2780,51 @@ paths:
                   type:
                     type: string
                     description: |
-                      Type of the bulk job. Possible values - `COPY_FOLDER`, `MOVE_FOLDER`.
+                      Type of the bulk job. Possible values - `COPY_FOLDER`, `MOVE_FOLDER`, `RENAME_FOLDER`.
                   status:
                     type: string
                     description: |
                       Status of the bulk job. Possible values - `Pending`, `Completed`.
+                  purgeRequestId:
+                    type: string
+                    description: |
+                      Unique identifier of the purge request. This will be present only if `purgeCache` is set to `true` in the rename folder API request.
                 example:
                   jobId: 5d5b1a9b4c8c4c0001f3e4a2
                   type: COPY_FOLDER
                   status: Completed
+        "207":
+          description: |
+            Partial success – the folder was renamed, but purge cache failed for nested files. It is only returned when `purgeCache` is set `true` in the rename folder API request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    description: |
+                      Unique identifier of the bulk job.
+                  type:
+                    type: string
+                    description: |
+                      Type of the bulk job. It is only possible for `RENAME_FOLDER`.
+                  status:
+                    type: string
+                    description: |
+                      Status of the bulk job. It will be `Partial success`.
+                  message:
+                    type: string
+                    example: Folder renamed successfully but purging cache on nested files failed.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+                example:
+                  jobId: 5d5b1a9b4c8c4c0001f3e4a2
+                  type: RENAME_FOLDER
+                  status: Partial success
+                  message: Folder renamed successfully but purging cache on nested files failed.
+                  help: For support kindly contact us at support@imagekit.io.
         "404":
           description: Job not found
           content:
@@ -2613,7 +3006,7 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
-  /v1/files/metadata:
+  /v1/metadata:
     get:
       tags:
         - File Metadata
@@ -2675,228 +3068,6 @@ paths:
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
-  /api/v1/files/upload:
-    servers:
-      - url: https://upload.imagekit.io
-    post:
-      tags:
-        - Upload File
-      operationId: upload-file
-      summary: Upload file V1
-      security: []
-      description: |
-        You can upload files to the ImageKit.io media library from your server-side using private API key authentication.
-
-        File size limit:
-        The maximum upload file size is limited to 25MB on the free plan. On paid plan, this limit is 300MB for video files.
-
-        Version limit:
-        A file can have a maximum of 100 versions.
-      parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          description: >
-            Authorization is different for server-side vs client-side file upload.
-
-            ### Authorization for server-side file upload
-
-            Basic HTTP authentication. Provide base64 encoded value of the string `your_private_api_key:`.
-
-        
-            Notice the colon (:) after the private key. It is required otherwise, authentication will fail. The format is `username:password`. `username` is your private key and `password` is an empty string.
-
-        
-            If you encode `your_private_api_key:` using base64, you will get `eW91cl9wcml2YXRlX2FwaV9rZXk6`.
-
-            
-            For example - `Authorization: Basic eW91cl9wcml2YXRlX2FwaV9rZXk6`
-
-            ### Authorization for client-side file upload
-
-            For client-side file upload, do not set `Authorization` header. 
-            
-            
-            Instead pass `signature`, one-time `token` and `expire` as shown below.
-
-
-            Learn [how to implement client-side file upload](#how-to-implement-client-side-file-upload).
-      requestBody:
-       content:
-          multipart/form-data:
-            schema:
-              oneOf:
-                - $ref: '#/components/request/ServerSideUploadV1'
-                - $ref: '#/components/request/ClientSideUploadV1'
-      responses:
-        "401":
-          $ref: '#/components/responses/Unauthorized'
-        "403":
-          $ref: '#/components/responses/Forbidden'
-        "200":
-          description: File uploaded successfully.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Upload"
-              examples:
-                Simple image file:
-                  value:
-                    $ref: "#/components/examples/UploadResponseImage"
-                Simple video file:
-                  value:
-                    $ref: "#/components/examples/UploadResonseVideo"
-                Image with EmbeddedMetadata:
-                  value:
-                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
-        "202":
-          description: File accepted for upload. Pre transformation for video is being processed.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The pre-transformation has been queued successfully.
-        "400":
-          description: Bad request.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    examples:
-                    - Your request is missing file parameter.
-                    - Your request contains both signature and basic auth parameter. Use only one method, you might be exposing your private API key.
-                    - Your request contains invalid expire parameter. Expire parameter should be a Unix time in less than 1 hour into the future.
-                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
-                    - Your request contains invalid file parameter. The file size exceeds limits.
-                    - Upload Limit Exceeded.
-                    - Extensions quota exceeded.
-                    - The file could not be uploaded because the transformation field is invalid.
-                    - The file could not be uploaded because transformations are supported only for image and video files.
-                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
-                    - You have sent too many requests to update the file recently. Please try again later.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io.
-  /api/v2/files/upload:
-    servers:
-      - url: https://upload.imagekit.io
-    post:
-      tags:
-        - Upload File
-      operationId: upload-file-v2
-      summary: Upload file V2
-      security: []
-      description: |
-        This API is in beta and subject to change.
-
-        You can upload files to the ImageKit.io media library from your server-side using private API key authentication.
-
-        File size limit:
-        The maximum upload file size is limited to 25MB on the free plan. On paid plan, this limit is 300MB for video files.
-
-        Version limit:
-        A file can have a maximum of 100 versions.
-      parameters:
-        - in: header
-          name: Authorization
-          schema:
-            type: string
-          description: >
-            Authorization is different for server-side vs client-side file upload.
-
-
-            ### Authorization for server-side file upload
-            
-            Basic HTTP authentication. Provide base64 encoded value of the string `your_private_api_key:`.
-        
-        
-            Notice the colon (:) after the private key. It is required otherwise, authentication will fail. The format is `username:password`. `username` is your private key and `password` is an empty string.
-
-        
-            If you encode `your_private_api_key:` using base64, you will get `eW91cl9wcml2YXRlX2FwaV9rZXk6`.
-
-            
-            For example - `Authorization: Basic eW91cl9wcml2YXRlX2FwaV9rZXk6`
-            
-            
-            ### Authorization for client-side file upload
-            
-            For client-side file upload, do not set `Authorization` header. Instead your client-side application must pass a JSON Web Token (JWT) as an authentication parameter. The upload API expects a `token` as a parameter. 
-            
-            
-            Learn [how to implement secure client-side file upload](#how-to-implement-secure-client-side-file-upload).
-      requestBody:
-       content:
-          multipart/form-data:
-            schema:
-              oneOf:
-                - $ref: '#/components/request/ServerSideUploadV2'
-                - $ref: '#/components/request/ClientSideUploadV2'
-      responses:
-        "401":
-          $ref: '#/components/responses/Unauthorized'
-        "403":
-          $ref: '#/components/responses/Forbidden'
-        "200":
-          description: File uploaded successfully.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/responses/Upload"
-              examples:
-                Simple image file:
-                  value:
-                    $ref: "#/components/examples/UploadResponseImage"
-                Simple video file:
-                  value:
-                    $ref: "#/components/examples/UploadResonseVideo"
-                Image with EmbeddedMetadata:
-                  value:
-                    $ref: "#/components/examples/UploadResponseWithEmbeddedMetadata"
-        "202":
-          description: File accepted for upload. Pre transformation for video is being processed.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: The pre-transformation has been queued successfully.
-        "400":
-          description: Bad request.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    examples:
-                    - Your request is missing file parameter.
-                    - Your request contains both token and basic auth parameter. Use only one method, you might be exposing your private API key.
-                    - Your request contains invalid payload. It does not match with the payload used to generate token.
-                    - Your request is missing token parameter.
-                    - Your request contains expired token.
-                    - Your request has invalid token.
-                    - A file with the same name already exists at the exact location. We could not overwrite it because both overwriteFile and useUniqueFileName are set to false.
-                    - Your request contains invalid file parameter. The file size exceeds limits.
-                    - Upload Limit Exceeded.
-                    - Extensions quota exceeded.
-                    - The file could not be uploaded because the transformation field is invalid.
-                    - The file could not be uploaded because transformations are supported only for image and video files.
-                    - The file could not be uploaded because the detected file type & post-transformation are incompatible.
-                    - You have sent too many requests to update the file recently. Please try again later.
-                  help:
-                    type: string
-                    example: For support kindly contact us at support@imagekit.io.
   /v1/accounts/usage:
     get:
       tags:
@@ -2912,14 +3083,14 @@ paths:
           schema:
             type: string
             format: date
-          required: false
+          required: true
         - in: query
           name: endDate
           description: Specify a `endDate` in `YYYY-MM-DD` format. It should be after the `startDate`. The difference between `startDate` and `endDate` should be less than 90 days.
           schema:
             type: string
             format: date
-          required: false
+          required: true
       responses:
         200:
           description: In the response, you will get different usage metrics.
@@ -2960,7 +3131,11 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: startDate and endDate should be within 90 days.
+                    examples:
+                    - startDate and endDate should be within 90 days.
+                    - startDate and endDate are required in query parameters.
+                    - startDate and endDate should be in format YYYY-MM-DD.
+                    - startDate should be before endDate.
                   help:
                     type: string
                     example: For support kindly contact us at support@imagekit.io.
@@ -2970,17 +3145,1429 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         "403":
           $ref: '#/components/responses/Forbidden'
+  /v1/accounts/origins:
+    get:
+      summary: List origins
+      tags:
+        - Account Management API
+        - Origins
+      operationId: list-origins
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Returns an array of all configured origins for the current account.
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OriginResponseArray"
+        "401":
+          &a1
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          &a2
+          $ref: "#/components/responses/Forbidden"
+        "429":
+          &a3
+          $ref: "#/components/responses/RateLimitExceeded"
+    post:
+      summary: Create origin
+      tags:
+        - Account Management API
+        - Origins
+      operationId: create-origin
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Creates a new origin and returns the origin object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OriginSchema"
+      responses:
+        "201":
+          description: Origin created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OriginResponse"
+        "400":
+          description: Bad request. The request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Invalid origin type. Must be one of S3, S3_COMPATIBLE,
+                        CLOUDINARY_BACKUP, WEB_FOLDER, WEB_PROXY, GCS,
+                        AZURE_BLOB, AKENEO_PIM.
+                      - name is required and must be a string
+                      - bucket is required and must be a string
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401": *a1
+        "403": *a2
+        "429": *a3
+  "/v1/accounts/origins/{id}":
+    get:
+      summary: Get origin
+      tags:
+        - Account Management API
+        - Origins
+      operationId: get-origin
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Retrieves the origin identified by `id`.
+      parameters:
+        - &a4
+          in: path
+          name: id
+          schema:
+            description: Unique identifier for the origin. This is generated by ImageKit
+              when you create a new origin.
+            type: string
+          required: true
+          description: Unique identifier for the origin. This is generated by ImageKit
+            when you create a new origin.
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OriginResponse"
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Origin not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+    put:
+      summary: Update origin
+      tags:
+        - Account Management API
+        - Origins
+      operationId: update-origin
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Updates the origin identified by `id` and returns the updated
+        origin object.
+      parameters:
+        - *a4
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OriginSchema"
+      responses:
+        "200":
+          description: Origin updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OriginResponse"
+        "400":
+          description: Bad request. The request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Invalid origin type. Must be one of S3, S3_COMPATIBLE,
+                        CLOUDINARY_BACKUP, WEB_FOLDER, WEB_PROXY, GCS,
+                        AZURE_BLOB, AKENEO_PIM.
+                      - name is required and must be a string
+                      - bucket is required and must be a string
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Origin not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+    delete:
+      summary: Delete origin
+      tags:
+        - Account Management API
+        - Origins
+      operationId: delete-origin
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Permanently removes the origin identified by `id`. If the origin is
+        in use by any URL‑endpoints, the API will return an error.
+      parameters:
+        - *a4
+      responses:
+        "204":
+          description: Origin deleted successfully.
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Origin not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+  /v1/accounts/url-endpoints:
+    get:
+      summary: List URL‑endpoints
+      tags:
+        - Account Management API
+        - URL endpoints
+      operationId: list-url-endpoints
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Returns an array of all URL‑endpoints configured including the
+        default URL-endpoint generated by ImageKit during account creation.
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UrlEndpointResponseArray"
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - URL-endpoint not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+    post:
+      summary: Create URL‑endpoint
+      tags:
+        - Account Management API
+        - URL endpoints
+      operationId: create-url-endpoint
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Creates a new URL‑endpoint and returns the resulting object.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/urlEndpointSchema"
+      responses:
+        "201":
+          description: URL‑endpoint created successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UrlEndpointResponse"
+        "400":
+          description: Bad request. The request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - description is required
+                      - urlPrefix must be a string
+                      - urlPrefix cannot be empty string. This is reserved for
+                        the default URL-endpoint created by ImageKit.
+                      - Origin does not exists. Please create origin before
+                        using it in URL-endpoint.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401": *a1
+        "403": *a2
+        "429": *a3
+  "/v1/accounts/url-endpoints/{id}":
+    get:
+      summary: Get URL‑endpoint
+      tags:
+        - Account Management API
+        - URL endpoints
+      operationId: get-url-endpoint
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Retrieves the URL‑endpoint identified by `id`.
+      parameters:
+        - &a5
+          in: path
+          name: id
+          schema:
+            description: Unique identifier for the URL-endpoint. This is generated by
+              ImageKit when you create a new URL-endpoint. For the default
+              URL-endpoint, this is always `default`.
+            type: string
+          required: true
+          description: Unique identifier for the URL-endpoint. This is generated by
+            ImageKit when you create a new URL-endpoint. For the default
+            URL-endpoint, this is always `default`.
+      responses:
+        "200":
+          description: Successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UrlEndpointResponse"
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - URL-endpoint not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+    put:
+      summary: Update URL‑endpoint
+      tags:
+        - Account Management API
+        - URL endpoints
+      operationId: update-url-endpoint
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Updates the URL‑endpoint identified by `id` and returns the updated
+        object.
+      parameters:
+        - *a5
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/urlEndpointSchema"
+      responses:
+        "200":
+          description: URL‑endpoint updated successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UrlEndpointResponse"
+        "400":
+          description: Bad request. The request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - description is required
+                      - urlPrefix must be a string
+                      - urlPrefix cannot be empty string. This is reserved for
+                        the default URL-endpoint created by ImageKit.
+                      - Origin does not exists. Please create origin before
+                        using it in URL-endpoint.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - URL-endpoint not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
+    delete:
+      summary: Delete URL‑endpoint
+      tags:
+        - Account Management API
+        - URL endpoints
+      operationId: delete-url-endpoint
+      description: >
+        **Note:** This API is currently in beta.  
+
+        Deletes the URL‑endpoint identified by `id`. You cannot delete the
+        default URL‑endpoint created by ImageKit during account creation.
+      parameters:
+        - *a5
+      responses:
+        "204":
+          description: URL‑endpoint deleted successfully.
+        "400":
+          description: Bad request. The request body is invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - Default URL-endpoint cannot be deleted.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "401": *a1
+        "403": *a2
+        "404":
+          description: Resource not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    examples:
+                      - URL-endpoint not found.
+                  help:
+                    type: string
+                    example: For support kindly contact us at support@imagekit.io.
+        "429": *a3
 components:
-  request:
-    ClientSideUploadV1:
+  schemas:
+    OriginSchema:
+      title: Origin Schema
+      description: Schema for origin resources.
+      example:
+        name: My S3 Origin
+        type: S3
+        bucket: test-bucket
+        prefix: images
+        accessKey: AKIATEST123
+        secretKey: secrettest123
+      oneOf:
+        - title: S3
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - S3
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+              default: ""
+              type: string
+              maxLength: 100
+            accessKey:
+              description: Access key for the bucket.
+              example: AKIAIOSFODNN7EXAMPLE
+              type: string
+              minLength: 1
+              maxLength: 100
+            secretKey:
+              description: Secret key for the bucket.
+              example: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+              type: string
+              minLength: 1
+              maxLength: 100
+          required:
+            - name
+            - type
+            - bucket
+            - accessKey
+            - secretKey
+          additionalProperties: false
+        - title: S3 Compatible
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - S3_COMPATIBLE
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+              default: ""
+              type: string
+              maxLength: 100
+            accessKey:
+              description: Access key for the bucket.
+              example: AKIAIOSFODNN7EXAMPLE
+              type: string
+              minLength: 1
+              maxLength: 100
+            secretKey:
+              description: Secret key for the bucket.
+              example: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+              type: string
+              minLength: 1
+              maxLength: 100
+            endpoint:
+              description: Custom S3-compatible endpoint.
+              example: https://s3.eu-central-1.wasabisys.com
+              type: string
+              format: uri
+            s3ForcePathStyle:
+              default: false
+              description: Use path-style S3 URLs?
+              example: true
+              type: boolean
+          required:
+            - name
+            - type
+            - bucket
+            - accessKey
+            - secretKey
+            - endpoint
+          additionalProperties: false
+        - title: Cloudinary Backup
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - CLOUDINARY_BACKUP
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+              default: ""
+              type: string
+              maxLength: 100
+            accessKey:
+              description: Access key for the bucket.
+              example: AKIAIOSFODNN7EXAMPLE
+              type: string
+              minLength: 1
+              maxLength: 100
+            secretKey:
+              description: Secret key for the bucket.
+              example: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+              type: string
+              minLength: 1
+              maxLength: 100
+          required:
+            - name
+            - type
+            - bucket
+            - accessKey
+            - secretKey
+          additionalProperties: false
+        - title: Web Folder
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - WEB_FOLDER
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            baseUrl:
+              description: Root URL for the web folder origin.
+              example: https://images.example.com/assets
+              type: string
+              format: uri
+            forwardHostHeaderToOrigin:
+              description: Forward the Host header to origin?
+              example: false
+              default: false
+              type: boolean
+          required:
+            - name
+            - type
+            - baseUrl
+          additionalProperties: false
+        - title: Web Proxy
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - WEB_PROXY
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+          required:
+            - name
+            - type
+          additionalProperties: false
+        - title: Google Cloud Storage (GCS)
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - GCS
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              example: gcs-media
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              example: products
+              default: ""
+              type: string
+              maxLength: 100
+            clientEmail:
+              example: service-account@project.iam.gserviceaccount.com
+              type: string
+              format: email
+              pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+            privateKey:
+              example: -----BEGIN PRIVATE KEY-----\nMIIEv...
+              type: string
+              minLength: 1
+          required:
+            - name
+            - type
+            - bucket
+            - clientEmail
+            - privateKey
+          additionalProperties: false
+        - title: Azure Blob Storage
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - AZURE_BLOB
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            container:
+              example: images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              example: uploads
+              default: ""
+              type: string
+              maxLength: 100
+            accountName:
+              example: account123
+              type: string
+              minLength: 1
+              maxLength: 100
+            sasToken:
+              example: ?sv=2023-01-03&sr=c&sig=abc123
+              type: string
+              minLength: 1
+          required:
+            - name
+            - type
+            - container
+            - accountName
+            - sasToken
+          additionalProperties: false
+        - title: Akeneo PIM
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - AKENEO_PIM
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            baseUrl:
+              description: Akeneo instance base URL.
+              example: https://akeneo.company.com
+              type: string
+              format: uri
+            clientId:
+              description: Akeneo API client ID.
+              example: akeneo-client-id
+              type: string
+              minLength: 1
+              maxLength: 100
+            clientSecret:
+              description: Akeneo API client secret.
+              example: akeneo-client-secret
+              type: string
+              minLength: 1
+              maxLength: 100
+            username:
+              description: Akeneo API username.
+              example: integration-user
+              type: string
+              minLength: 1
+              maxLength: 100
+            password:
+              description: Akeneo API password.
+              example: strongpassword123
+              type: string
+              minLength: 1
+              maxLength: 100
+          required:
+            - name
+            - type
+            - baseUrl
+            - clientId
+            - clientSecret
+            - username
+            - password
+          additionalProperties: false
       type: object
-      title: Client side file upload
+    urlEndpointSchema:
+      title: URL Endpoint Schema
+      description: Schema for URL endpoint resource.
+      example:
+        description: My custom URL endpoint
+        urlPrefix: product-images
+        origins:
+          - origin-id-1
+      type: object
+      properties:
+        description:
+          description: Description of the URL endpoint.
+          example: My custom URL endpoint
+          type: string
+          minLength: 1
+          maxLength: 1000
+        urlPrefix:
+          description: Path segment appended to your base URL to form the endpoint
+            (letters, digits, and hyphens only — or empty for the default
+            endpoint).
+          example: product-images
+          default: ""
+          type: string
+          maxLength: 100
+        origins:
+          description: Ordered list of origin IDs to try when the file isn’t in the Media
+            Library; ImageKit checks them in the sequence provided. Origin must
+            be created before it can be used in a URL endpoint.
+          example:
+            - origin-id-1
+            - origin-id-2
+          default: []
+          maxItems: 10
+          type: array
+          items:
+            description: Unique identifier for the origin. This is generated by ImageKit
+              when you create a new origin.
+            type: string
+        urlRewriter:
+          description: Configuration for third-party URL rewriting.
+          oneOf:
+            - title: Cloudinary URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - CLOUDINARY
+                preserveAssetDeliveryTypes:
+                  description: Whether to preserve `<asset_type>/<delivery_type>` in the rewritten
+                    URL.
+                  example: true
+                  default: false
+                  type: boolean
+              required:
+                - type
+              additionalProperties: false
+            - title: Imgix URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - IMGIX
+              required:
+                - type
+              additionalProperties: false
+            - title: Akamai URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - AKAMAI
+              required:
+                - type
+              additionalProperties: false
+          type: object
+      required:
+        - description
+      additionalProperties: false
+    OriginResponseArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/OriginResponse"
+    OriginResponse:
+      title: Origin Response
+      description: Origin object as returned by the API (sensitive fields removed).
+      oneOf:
+        - title: S3
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - S3
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - bucket
+            - prefix
+            - id
+          additionalProperties: false
+        - title: S3 Compatible
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - S3_COMPATIBLE
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+            endpoint:
+              description: Custom S3-compatible endpoint.
+              example: https://s3.eu-central-1.wasabisys.com
+              type: string
+              format: uri
+            s3ForcePathStyle:
+              default: false
+              description: Use path-style S3 URLs?
+              example: true
+              type: boolean
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - bucket
+            - prefix
+            - endpoint
+            - s3ForcePathStyle
+            - id
+          additionalProperties: false
+        - title: Cloudinary Backup
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - CLOUDINARY_BACKUP
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              description: S3 bucket name.
+              example: product-images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              description: Path prefix inside the bucket.
+              example: raw-assets
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - bucket
+            - prefix
+            - id
+          additionalProperties: false
+        - title: Web Folder
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - WEB_FOLDER
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            baseUrl:
+              description: Root URL for the web folder origin.
+              example: https://images.example.com/assets
+            forwardHostHeaderToOrigin:
+              description: Forward the Host header to origin?
+              example: false
+              default: false
+              type: boolean
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - baseUrl
+            - forwardHostHeaderToOrigin
+            - id
+          additionalProperties: false
+        - title: Web Proxy
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - WEB_PROXY
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - id
+          additionalProperties: false
+        - title: Google Cloud Storage (GCS)
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - GCS
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            bucket:
+              example: gcs-media
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              example: products
+            clientEmail:
+              example: service-account@project.iam.gserviceaccount.com
+              type: string
+              format: email
+              pattern: ^(?!\.)(?!.*\.\.)([A-Za-z0-9_'+\-\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\-]*\.)+[A-Za-z]{2,}$
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - bucket
+            - prefix
+            - clientEmail
+            - id
+          additionalProperties: false
+        - title: Azure Blob Storage
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - AZURE_BLOB
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            container:
+              example: images
+              type: string
+              minLength: 1
+              maxLength: 100
+            prefix:
+              example: uploads
+            accountName:
+              example: account123
+              type: string
+              minLength: 1
+              maxLength: 100
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - container
+            - prefix
+            - accountName
+            - id
+          additionalProperties: false
+        - title: Akeneo PIM
+          type: object
+          properties:
+            name:
+              description: Display name of the origin.
+              example: US S3 Storage
+              type: string
+              minLength: 1
+              maxLength: 100
+              pattern: ^[a-zA-Z0-9 ]+$
+            type:
+              type: string
+              enum:
+                - AKENEO_PIM
+            includeCanonicalHeader:
+              description: Whether to send a Canonical header.
+              example: false
+              default: false
+              type: boolean
+            baseUrlForCanonicalHeader:
+              description: URL used in the Canonical header (if enabled).
+              example: https://cdn.example.com
+              type: string
+              format: uri
+            baseUrl:
+              description: Akeneo instance base URL.
+              example: https://akeneo.company.com
+            id:
+              readOnly: true
+              description: Unique identifier for the origin. This is generated by ImageKit
+                when you create a new origin.
+              type: string
+          required:
+            - name
+            - type
+            - includeCanonicalHeader
+            - baseUrl
+            - id
+          additionalProperties: false
+      type: object
+    UrlEndpointResponseArray:
+      type: array
+      items:
+        $ref: "#/components/schemas/UrlEndpointResponse"
+    UrlEndpointResponse:
+      title: URL‑endpoint Response
+      description: URL‑endpoint object as returned by the API.
+      type: object
+      properties:
+        description:
+          description: Description of the URL endpoint.
+          example: My custom URL endpoint
+          type: string
+          minLength: 1
+          maxLength: 1000
+        urlPrefix:
+          description: Path segment appended to your base URL to form the endpoint
+            (letters, digits, and hyphens only — or empty for the default
+            endpoint).
+          example: product-images
+          default: ""
+          type: string
+          maxLength: 100
+        origins:
+          description: Ordered list of origin IDs to try when the file isn’t in the Media
+            Library; ImageKit checks them in the sequence provided. Origin must
+            be created before it can be used in a URL endpoint.
+          example:
+            - origin-id-1
+            - origin-id-2
+          default: []
+          maxItems: 10
+          type: array
+          items:
+            description: Unique identifier for the origin. This is generated by ImageKit
+              when you create a new origin.
+            type: string
+        urlRewriter:
+          description: Configuration for third-party URL rewriting.
+          oneOf:
+            - title: Cloudinary URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - CLOUDINARY
+                preserveAssetDeliveryTypes:
+                  description: Whether to preserve `<asset_type>/<delivery_type>` in the rewritten
+                    URL.
+                  example: true
+                  default: false
+                  type: boolean
+              required:
+                - type
+                - preserveAssetDeliveryTypes
+              additionalProperties: false
+            - title: Imgix URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - IMGIX
+              required:
+                - type
+              additionalProperties: false
+            - title: Akamai URL Rewriter
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - AKAMAI
+              required:
+                - type
+              additionalProperties: false
+          type: object
+        id:
+          readOnly: true
+          description: Unique identifier for the URL-endpoint. This is generated by
+            ImageKit when you create a new URL-endpoint. For the default
+            URL-endpoint, this is always `default`.
+          type: string
+      required:
+        - description
+        - urlPrefix
+        - origins
+        - id
+      additionalProperties: false
+  request:
+    FileUploadV1:
+      type: object
       required:
         - file
         - fileName
-        - token
-        - signature
-        - expire
       properties:
         file:
           type: string
@@ -2994,6 +4581,7 @@ components:
             
             Note: When passing a URL in the file parameter, please ensure that our servers can access the URL. In case ImageKit is unable to download the file from the specified URL, a `400` error response is returned. This will also result in a `400` error if the file download request is aborted if response headers are not received in 8 seconds.
           example: "https://www.example.com/rest-of-the-image-path.jpg"
+          contentEncoding: binary
         fileName:
           type: string
           description: >
@@ -3005,24 +4593,25 @@ components:
               - Special Characters: `.`, `-`
             
             Any other character including space will be replaced by `_`
+        publicKey:
+          type: string
+          description: >
+            Your ImageKit.io public key. This field is only required for authentication when uploading a file from the client side.
         signature:
           type: string
-          required: true
           description: >
             HMAC-SHA1 digest of the token+expire using your ImageKit.io private API key as a key. Learn how to create a signature on the page below. This should be in lowercase.
 
             
-            Signature must be calculated on the server-side. This field is required for authentication when uploading a file from the client side.
+            Signature must be calculated on the server-side. This field is only required for authentication when uploading a file from the client side.
         expire:
           type: string
-          required: true
           description: >
-            The time until your signature is valid. It must be a [Unix time](https://en.wikipedia.org/wiki/Unix_time) in less than 1 hour into the future. It should be in seconds.
+            The time until your signature is valid. It must be a [Unix time](https://en.wikipedia.org/wiki/Unix_time) in less than 1 hour into the future. It should be in seconds. This field is only required for authentication when uploading a file from the client side.
         token:
           type: string
-          required: true
           description: >
-            A unique value that the ImageKit.io server will use to recognize and prevent subsequent retries for the same request. We suggest using V4 UUIDs, or another random string with enough entropy to avoid collisions.
+            A unique value that the ImageKit.io server will use to recognize and prevent subsequent retries for the same request. We suggest using V4 UUIDs, or another random string with enough entropy to avoid collisions. This field is only required for authentication when uploading a file from the client side.
 
 
             **Note**: Sending a value that has been used in the past will result in a validation error. Even if your previous request resulted in an error, you should always send a new value for this field.
@@ -3117,7 +4706,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/docs/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3168,9 +4757,21 @@ components:
             
             Read more about [Adaptive bitrate streaming (ABS)](/docs/adaptive-bitrate-streaming).
           example: '{"pre": "width:300,height:300,quality:80", "post": [{"type": "thumbnail", "value": "width:100,height:100"}]}'
-    ServerSideUploadV1:
+        checks:
+          type: string
+          description: >
+            Server-side checks to run on the asset.
+            
+            Read more about [Upload API checks](/docs/api-reference/upload-file/upload-file#upload-api-checks).
+          example: >
+            "request.folder" : "marketing/"
+        description:
+          type: string
+          description: |
+            Optional text to describe the contents of the file.
+          example: "Running shoes"
+    FileUploadV2:
       type: object
-      title: Server side file upload
       required:
         - file
         - fileName
@@ -3187,188 +4788,15 @@ components:
             
             Note: When passing a URL in the file parameter, please ensure that our servers can access the URL. In case ImageKit is unable to download the file from the specified URL, a `400` error response is returned. This will also result in a `400` error if the file download request is aborted if response headers are not received in 8 seconds.
           example: "https://www.example.com/rest-of-the-image-path.jpg"
-        fileName:
-          type: string
-          description: >
-            The name with which the file has to be uploaded.
-            
-            The file name can contain:
-            
-              - Alphanumeric Characters: `a-z`, `A-Z`, `0-9`.
-              - Special Characters: `.`, `-`
-            
-            Any other character including space will be replaced by `_`
-        useUniqueFileName:
-          type: string
-          default: true
-          description: >
-            Whether to use a unique filename for this file or not.
-            
-            
-            If `true`, ImageKit.io will add a unique suffix to the filename parameter to get a unique filename.
-            
-            
-            If `false`, then the image is uploaded with the provided filename parameter, and any existing file with the same name is replaced.
-          enum:
-            - true
-            - false
-        tags:
-          type: string
-          description: >
-            Set the tags while uploading the file.
-            
-            
-            Comma-separated value of tags in the format `tag1,tag2,tag3`.
-            The maximum length of all characters should not exceed 500. `%` is not allowed.
-            
-            
-            If this field is not specified and the file is overwritten then the tags will be removed.
-          example: "t-shirt,round-neck,men"
-        folder:
-          type: string
-          description: >
-            The folder path in which the image has to be uploaded.
-            If the folder(s) didn't exist before, a new folder(s) is created.
-            
-            
-            The folder name can contain:
-            
-              - Alphanumeric Characters: `a-z` , `A-Z` , `0-9`
-              - Special Characters: `/` , `_` , `-`
-            
-            Using multiple `/` creates a nested folder.
-          default: "/"
-        isPrivateFile:
-          type: string
-          default: false
-          description: >
-            Whether to mark the file as private or not.
-            
-            
-            If `true`, the file is marked as private and is accessible only using named transformation or signed URL.
-          enum:
-            - true
-            - false
-        isPublished:
-          type: string
-          default: true
-          description: >
-            Whether to upload file as published or not.
-            
-            
-            If `false`, the file is marked as unpublished, which restricts access to the file only via the media library. Files in draft or unpublished state can only be publicly accessed after being published.
-            
-            
-            The option to upload in draft state is only available in custom enterprise pricing plans.
-          enum:
-            - true
-            - false
-        customCoordinates:
-          type: string
-          description: >
-            Define an important area in the image. This is only relevant for image type files.
-
-              - To be passed as a string with the x and y coordinates of the top-left corner, and width and height of the area of interest in the format `x,y,width,height`. For example - `10,10,100,100`
-              - Can be used with fo-customtransformation.
-              - If this field is not specified and the file is overwritten, then customCoordinates will be removed.
-        responseFields:
-          type: string
-          description: >
-            Comma-separated values of the fields that you want the API to return in the response.
-
-
-            For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
-
-
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
-        extensions:
-          type: string
-          description: >
-            Stringified JSON object with an array of extensions to be applied to the image. Refer to extensions schema in [update file API request body](/docs/api-reference/digital-asset-management-dam/managing-assets/update-file-details#request-body).
-          example: [{"name":"remove-bg","options":{"add_shadow":true,"bg_colour":"green"}}, {"name":"google-auto-tagging","maxTags":5,"minConfidence":95}]
-        webhookUrl:
-          type: string
-          description: >
-            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
-        overwriteFile:
-          type: string
-          default: true
-          description: >
-            If `false` and `useUniqueFileName` is also `false`, and a file already exists at the exact location, upload API will return an error immediately.
-        overwriteAITags:
-          type: string
-          default: true
-          description: >
-            If set to `true` and a file already exists at the exact location, its AITags will be removed. Set `overwriteAITags` to `false` to preserve AITags.
-          enum:
-            - true
-            - false
-        overwriteTags:
-          type: string
-          default: true
-          description: >
-            If the request does not have `tags`, and a file already exists at the exact location, existing tags will be removed.
-          enum:
-            - true
-            - false
-        overwriteCustomMetadata:
-          type: string
-          default: true
-          description: >
-            If the request does not have `customMetadata`, and a file already exists at the exact location, existing customMetadata will be removed.
-          enum:
-            - true
-            - false
-        customMetadata:
-          type: string
-          description: >
-            Stringified JSON key-value data to be associated with the asset.
-          example: {"brand":"Nike", "color":"red"}
-        transformation:
-          type: string
-          description: >
-            Stringified JSON object with properties for pre and post transformations:
-            
-            
-            `pre` - Accepts a "string" containing a valid transformation used for requesting a pre-transformation for an image or a video file.
-            
-            
-            `post` - Accepts an array of objects with properties:
-              - `type`: One of `transformation`, `gif-to-video`, `thumbnail`, or `abs` (Adaptive bitrate streaming).
-              - `value`: A "string" corresponding to the required transformation. Required if `type` is `transformation` or `abs`. Optional if `type` is `gif-to-video` or `thumbnail`.
-              - `protocol`: Either `hls` or `dash`, applicable only if `type` is `abs`.
-            
-            Read more about [Adaptive bitrate streaming (ABS)](/docs/adaptive-bitrate-streaming).
-          example: '{"pre": "width:300,height:300,quality:80", "post": [{"type": "thumbnail", "value": "width:100,height:100"}]}'
-    ClientSideUploadV2:
-      type: object
-      title: Client side file upload
-      required:
-        - file
-        - fileName
-        - token
-      properties:
-        file:
-          type: string
-          description: >
-            This field accepts three kinds of values:
-            
-            
-              - `binary` - You can send the content of the file as binary. This is used when a file is being uploaded from the browser.
-              - `base64` - Base64 encoded string of file content.
-              - `url` - URL of the file from where to download the content before uploading.
-            
-            Note: When passing a URL in the file parameter, please ensure that our servers can access the URL. In case ImageKit is unable to download the file from the specified URL, a `400` error response is returned. This will also result in a `400` error if the file download request is aborted if response headers are not received in 8 seconds.
-          example: "https://www.example.com/rest-of-the-image-path.jpg"
+          contentEncoding: binary
         fileName:
           type: string
           description: >
             The name with which the file has to be uploaded.
         token:
           type: string
-          required: true
           description: >
-            This is the client-generated JSON Web Token (JWT). The ImageKit.io server uses it to authenticate and check that the upload request parameters have not been tampered with after the token has been generated. Learn how to create the token on the page below.
+            This is the client-generated JSON Web Token (JWT). The ImageKit.io server uses it to authenticate and check that the upload request parameters have not been tampered with after the token has been generated. Learn how to create the token on the page below. This field is only required for authentication when uploading a file from the client side.
 
 
 
@@ -3443,162 +4871,6 @@ components:
               - If this field is not specified and the file is overwritten, then customCoordinates will be removed.
         responseFields:
           type: string
-          description: >
-            Comma-separated values of the fields that you want the API to return in the response.
-
-
-            For example, set the value of this field to `tags,customCoordinates,isPrivateFile` to get the value of `tags`, `customCoordinates`, and `isPrivateFile` in the response.
-
-
-            Accepts combination of `tags`, `customCoordinates`, `isPrivateFile`, `embeddedMetadata`, `isPublished`, `customMetadata`, and `metadata`.
-        extensions:
-          type: string
-          description: >
-            Stringified JSON object with an array of extensions to be applied to the image. Refer to extensions schema in [update file API request body](/docs/api-reference/digital-asset-management-dam/managing-assets/update-file-details#request-body).
-          example: [{"name":"remove-bg","options":{"add_shadow":true,"bg_colour":"green"}}, {"name":"google-auto-tagging","maxTags":5,"minConfidence":95}]
-        webhookUrl:
-          type: string
-          description: >
-            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
-        overwriteFile:
-          type: string
-          default: true
-          description: >
-            If `false` and `useUniqueFileName` is also `false`, and a file already exists at the exact location, upload API will return an error immediately.
-        overwriteAITags:
-          type: string
-          default: true
-          description: >
-            If set to `true` and a file already exists at the exact location, its AITags will be removed. Set `overwriteAITags` to `false` to preserve AITags.
-          enum:
-            - true
-            - false
-        overwriteTags:
-          type: string
-          default: true
-          description: >
-            If the request does not have `tags`, and a file already exists at the exact location, existing tags will be removed.
-          enum:
-            - true
-            - false
-        overwriteCustomMetadata:
-          type: string
-          default: true
-          description: >
-            If the request does not have `customMetadata`, and a file already exists at the exact location, existing customMetadata will be removed.
-          enum:
-            - true
-            - false
-        customMetadata:
-          type: string
-          description: >
-            Stringified JSON key-value data to be associated with the asset.
-          example: {"brand":"Nike", "color":"red"}
-        transformation:
-          type: string
-          description: >
-            Stringified JSON object with properties for pre and post transformations:
-            
-            
-            `pre` - Accepts a "string" containing a valid transformation used for requesting a pre-transformation for an image or a video file.
-            
-            
-            `post` - Accepts an array of objects with properties:
-              - `type`: One of `transformation`, `gif-to-video`, `thumbnail`, or `abs` (Adaptive bitrate streaming).
-              - `value`: A "string" corresponding to the required transformation. Required if `type` is `transformation` or `abs`. Optional if `type` is `gif-to-video` or `thumbnail`.
-              - `protocol`: Either `hls` or `dash`, applicable only if `type` is `abs`.
-            
-            Read more about [Adaptive bitrate streaming (ABS)](/docs/adaptive-bitrate-streaming).
-          example: '{"pre": "width:300,height:300,quality:80", "post": [{"type": "thumbnail", "value": "width:100,height:100"}]}'
-    ServerSideUploadV2:
-      type: object
-      title: Server side file upload
-      required:
-        - file
-        - fileName
-      properties:
-        file:
-          type: string
-          description: >
-            This field accepts three kinds of values:
-            
-            
-              - `binary` - You can send the content of the file as binary. This is used when a file is being uploaded from the browser.
-              - `base64` - Base64 encoded string of file content.
-              - `url` - URL of the file from where to download the content before uploading.
-            
-            Note: When passing a URL in the file parameter, please ensure that our servers can access the URL. In case ImageKit is unable to download the file from the specified URL, a `400` error response is returned. This will also result in a `400` error if the file download request is aborted if response headers are not received in 8 seconds.
-          example: "https://www.example.com/rest-of-the-image-path.jpg"
-        fileName:
-          type: string
-          description: >
-            The name with which the file has to be uploaded.
-        useUniqueFileName:
-          type: string
-          default: true
-          description: >
-            Whether to use a unique filename for this file or not.
-            
-            
-            If `true`, ImageKit.io will add a unique suffix to the filename parameter to get a unique filename.
-            
-            
-            If `false`, then the image is uploaded with the provided filename parameter, and any existing file with the same name is replaced.
-          enum:
-            - true
-            - false
-        tags:
-          type: string
-          description: >
-            Set the tags while uploading the file.
-            
-            
-            Comma-separated value of tags in the format `tag1,tag2,tag3`.
-            The maximum length of all characters should not exceed 500. `%` is not allowed.
-            
-            
-            If this field is not specified and the file is overwritten then the tags will be removed.
-          example: "t-shirt,round-neck,men"
-        folder:
-          type: string
-          description: >
-            The folder path in which the image has to be uploaded. If the folder(s) didn't exist before, a new folder(s) is created. Using multiple `/` creates a nested folder.
-          default: "/"
-        isPrivateFile:
-          type: string
-          default: false
-          description: >
-            Whether to mark the file as private or not.
-            
-            
-            If `true`, the file is marked as private and is accessible only using named transformation or signed URL.
-          enum:
-            - true
-            - false
-        isPublished:
-          type: string
-          default: true
-          description: >
-            Whether to upload file as published or not.
-            
-            
-            If `false`, the file is marked as unpublished, which restricts access to the file only via the media library. Files in draft or unpublished state can only be publicly accessed after being published.
-            
-            
-            The option to upload in draft state is only available in custom enterprise pricing plans.
-          enum:
-            - true
-            - false
-        customCoordinates:
-          type: string
-          description: >
-            Define an important area in the image. This is only relevant for image type files.
-
-              - To be passed as a string with the x and y coordinates of the top-left corner, and width and height of the area of interest in the format `x,y,width,height`. For example - `10,10,100,100`
-              - Can be used with fo-customtransformation.
-              - If this field is not specified and the file is overwritten, then customCoordinates will be removed.
-        responseFields:
-          type: string
           description: |
             Comma-separated values of the fields that you want the API to return in the response.
 
@@ -3615,7 +4887,7 @@ components:
         webhookUrl:
           type: string
           description: >
-            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
+            The final status of extensions after they have completed execution will be delivered to this endpoint as a POST request. [Learn more](/docs/api-reference/digital-asset-management-dam/managing-assets/update-file-details#webhook-payload-structure) about the webhook payload structure.
         overwriteFile:
           type: string
           default: true
@@ -3666,6 +4938,19 @@ components:
             
             Read more about [Adaptive bitrate streaming (ABS)](/docs/adaptive-bitrate-streaming).
           example: '{"pre": "width:300,height:300,quality:80", "post": [{"type": "thumbnail", "value": "width:100,height:100"}]}'
+        checks:
+          type: string
+          description: >
+            Server-side checks to run on the asset.
+            
+            Read more about [Upload API checks](/docs/api-reference/upload-file/upload-file-v2#upload-api-checks).
+          example: >
+            "request.folder" : "marketing/"
+        description:
+          type: string
+          description: |
+            Optional text to describe the contents of the file.
+          example: "Running shoes"
     RemovedotBGExtension:
       title: Remove background
       type: object
@@ -3718,8 +5003,19 @@ components:
         maxTags:
           type: integer
           description: Maximum number of tags to attach to the asset.
+    AutoDescriptionExtension:
+      title: Auto description
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          enum: ['ai-auto-description']
+          description: Specifies the auto description extension.
   responses:  
     FileDetails:
+      title: File & File Version
       type: object
       properties:
         fileId:
@@ -3728,6 +5024,9 @@ components:
         type:
           type: string
           description: Type of the asset.
+          enum: 
+            - file
+            - file-version
         name:
           type: string
           description: Name of the asset.
@@ -3776,6 +5075,10 @@ components:
           type: boolean
           description: |
             Specifies if the file is private or not.
+        isPublished:
+          type: boolean
+          description: |
+            Specifies if the file is published or not.
         customCoordinates:
           oneOf:
             - type: string
@@ -3818,6 +5121,10 @@ components:
           type: object
           description: |
             An object with custom metadata for the file.
+        description:
+          type: string
+          description: |
+            Optional text to describe the contents of the file. Can be set by the user or the ai-auto-description extension.
         createdAt:
           type: string
           description: |
@@ -3826,6 +5133,33 @@ components:
           type: string
           description: |
             Date and time when the file was last updated. The date and time is in ISO8601 format.
+    FolderDetails:
+      title: Folder
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the asset.
+          enum: 
+            - folder
+        folderId:
+          type: string
+          description: Unique identifier of the asset.
+        name:
+          type: string
+          description: Name of the asset.
+        folderPath:
+          type: string
+          description: |
+            Path of the folder. This is the path you would use in the URL to access the folder. For example, if the folder is at the root of the media library, the path will be /folder. If the folder is inside another folder named images, the path will be /images/folder.
+        createdAt:
+          type: string
+          description: |
+            Date and time when the folder was created. The date and time is in ISO8601 format.
+        updatedAt:
+          type: string
+          description: |
+            Date and time when the folder was last updated. The date and time is in ISO8601 format.
     Upload:
       type: object
       properties:
@@ -3943,6 +5277,9 @@ components:
             remove-bg:
               type: string
               enum: ["success", "pending", "failed"]
+            ai-auto-description:
+              type: string
+              enum: ["success", "pending", "failed"]
         metadata:
           type: object
           $ref: "#/components/responses/Metadata"
@@ -3953,6 +5290,10 @@ components:
           $ref: "#/components/responses/EmbeddedMetadata"
           description:
             Consolidated embedded metadata associated with the file. It includes exif, iptc, and xmp data. Send `embeddedMetadata` in `responseFields` in API request to get embeddedMetadata in the upload API response.
+        description:
+          type: string
+          description: |
+            Optional text to describe the contents of the file. Can be set by the user or the ai-auto-description extension.
     ExifImage:
       type: object
       properties:
@@ -4905,7 +6246,7 @@ components:
               type: string
               enum:
                 - Text
-                - TextArea
+                - Textarea
                 - Number
                 - Date
                 - Boolean
@@ -5518,7 +6859,7 @@ components:
         ImageKit API uses API keys to authenticate requests. You can view and manage your API keys in [the dashboard](https://imagekit.io/dashboard/developer/api-keys).
 
         
-        Private keys have the prefix `private_` and the public keys have the prefix `public_`. Alternatively, you can use [restricted API keys](/api-keys#restricted-api-keys) for granular permissions.
+        Private keys have the prefix `private_` and the public keys have the prefix `public_`. Alternatively, you can use [restricted API keys](/docs/api-keys#restricted-api-keys) for granular permissions.
 
         
         Your API keys carry many privileges, so be sure to keep them secure! Do not share your secret API keys in publicly accessible areas such as GitHub, client-side code, and so forth.
