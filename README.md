@@ -1,3 +1,1 @@
-# ImageKit OpenAPI Specification
-
-This repository contains [OpenAPI specifications](https://www.openapis.org/) for ImageKit API.
+The OAS has been moved to [SDK generation](https://github.com/imagekit-developer/sdk-generation) repoistory.
